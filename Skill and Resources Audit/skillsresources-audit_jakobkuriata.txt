@@ -1,0 +1,10 @@
+Jakob Kuriata - Skills and Resources Audit
+- 3rd year computer science student.
+- This will be my final semester.
+- Taking CITS3200, CITS3001, CITS3007 and CITS2211 this semester.
+- Experienced with Flask, HTML, CSS and JS due to CITS3403 project.
+- Also experinced with Python, Java, C and C++.
+- Lightly dablled in React and SwiftUI.
+- Well experinced with GIT (branching, pull requests, and issues, etc).
+- I mainly use macOS, however I have access to both Windows and Linux if needed.
+- Avaliable after 3pm most days, however feel free to PM if needed.
