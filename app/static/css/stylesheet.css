@@ -1,0 +1,15 @@
+head, body{
+    text-align: center;
+    padding-bottom: 50px;
+}
+
+h1 {
+    padding: 40px;
+    font-size: 60px;
+}
+
+ul{
+    display: inline-block;
+    text-align: left;
+    list-style-type: square;
+}
