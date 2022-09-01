@@ -1,15 +1,49 @@
-head, body{
-    text-align: center;
-    padding-bottom: 50px;
-}
+body {
+    
+    background-repeat: no-repeat;
+    background-attachment: fixed; 
+    background-size: cover;
+    background-color: #ffffff;
+    }
 
 h1 {
-    padding: 40px;
-    font-size: 60px;
+    color: rgb(42, 52, 134);
+    font-family: comic sans ms;
+    text-align: center
 }
 
-ul{
-    display: inline-block;
-    text-align: left;
-    list-style-type: square;
+p {
+    font-family: comic sans ms;
+    text-align: center;
 }
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    line-height: 60px; /* Vertically center the text there */
+    background-color: #1c1c1c;
+    opacity: 0.6;
+    text-align: center;
+    font-family: comic sans ms;
+  }
+
+  .header {
+    background-color: #3b34ff;
+    font-family: comic sans ms;
+  }
+
+  .content {
+    max-width: 500px;
+    margin: auto;
+    background: rgb(233, 233, 233);
+    padding: 10px;
+    border: #0a0099;
+    border-radius: 1cm;
+    border-color: #3d54ff;
+    margin-top: 150px;
+    box-shadow: 2px 2px 5px #333;
+    opacity: 0.9;
+  }
