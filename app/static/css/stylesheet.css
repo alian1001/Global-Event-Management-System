@@ -54,3 +54,18 @@ p {
     box-shadow: 2px 2px 5px #333;
     opacity: 0.9;
   }
+
+  
+.container {
+  padding:20px;
+}
+
+.form1 {
+padding:25px;
+}
+
+#submit {
+background-color: #3b34ff; 
+padding: auto;
+color: white;
+}
