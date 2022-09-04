@@ -11,7 +11,7 @@
  Target Server Version : 80030
  File Encoding         : 65001
 
- Date: 02/09/2022 13:51:14
+ Date: 04/09/2022 11:01:26
 */
 
 SET NAMES utf8mb4;
@@ -35,8 +35,8 @@ CREATE TABLE `apply`  (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'changetime',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `FK4`(`userid` ASC) USING BTREE,
-  CONSTRAINT `FK4` FOREIGN KEY (`userid`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'applytable' ROW_FORMAT = COMPACT;
+  CONSTRAINT `FK4` FOREIGN KEY (`id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'applytable' ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of apply
@@ -54,7 +54,7 @@ CREATE TABLE `apply_detail`  (
   `audittime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'audittime',
   `status` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'status of appointment (approve refuse or undetermined )',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'apply_detailtable' ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'apply_detailtable' ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of apply_detail
@@ -73,7 +73,7 @@ CREATE TABLE `document_detail`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `FK3`(`userid` ASC) USING BTREE,
   CONSTRAINT `FK3` FOREIGN KEY (`userid`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'documenttable' ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'documenttable' ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of document_detail
@@ -93,27 +93,10 @@ CREATE TABLE `payment_detail`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `FK2`(`userid` ASC) USING BTREE,
   CONSTRAINT `FK2` FOREIGN KEY (`userid`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'paymenttable' ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'paymenttable' ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of payment_detail
--- ----------------------------
-
--- ----------------------------
--- Table structure for role
--- ----------------------------
-DROP TABLE IF EXISTS `role`;
-CREATE TABLE `role`  (
-  `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `roleid` int UNSIGNED NOT NULL COMMENT 'roleid',
-  `role_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'roleid',
-  `remark` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'describe_permissions',
-  `number` int NULL DEFAULT NULL COMMENT 'number_of_permissions',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'roletable' ROW_FORMAT = COMPACT;
-
--- ----------------------------
--- Records of role
 -- ----------------------------
 
 -- ----------------------------
@@ -122,14 +105,17 @@ CREATE TABLE `role`  (
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `username` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'username',
-  `display_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'userid',
+  `firstname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'firstname',
+  `lastname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'lastname',
   `password` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'password',
   `email` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `phone` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'phonenumber',
+  `diet` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'diet',
+  `guests` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'guests',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'createtime',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'changetime',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'usertable' ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'usertable' ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of user
@@ -141,13 +127,13 @@ CREATE TABLE `user`  (
 DROP TABLE IF EXISTS `user-role`;
 CREATE TABLE `user-role`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `roleid` int UNSIGNED NOT NULL COMMENT 'roleid',
+  `role_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'role name(user or admin)',
   `userid` int UNSIGNED NOT NULL COMMENT 'id in user table',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'createtime',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `FK1`(`userid` ASC) USING BTREE,
   CONSTRAINT `FK1` FOREIGN KEY (`userid`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'role_usertable' ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'roletable' ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of user-role
