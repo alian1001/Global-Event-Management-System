@@ -105,6 +105,7 @@ CREATE TABLE `payment_detail`  (
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'perfername',
   `firstname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'firstname',
   `lastname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'lastname',
   `password` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'password',
