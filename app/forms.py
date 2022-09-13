@@ -23,3 +23,10 @@ class checkinForm(FlaskForm):
         attendee = Attendee.query.filter_by(email=phone.data).first()
         if attendee is not None:
             raise ValidationError('Please use a different phone number.')
+
+
+class eventForm(FlaskForm):
+    event_name = StringField('Event name:',  validators=[DataRequired()])
+    event_date = StringField('Date of event:',  validators=[DataRequired()])
+    event_time = StringField('Time of event:',  validators=[DataRequired()])
+    event_location = StringField('Location:',  validators=[DataRequired()])
