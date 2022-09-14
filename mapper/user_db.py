@@ -5,7 +5,7 @@ def get_all_users() -> tuple:
     sql = "select * from user"
     return base_db.query(sql)
 
-# page_num 从 0 开始
+# page_num from 0
 def get_all_users_by_page(page_num, page_len) -> tuple:
     sql = "select * from user limit %s, %s" % (page_len * page_num, page_len)
     return base_db.query(sql)
@@ -34,12 +34,15 @@ def get_user_by_name(name) -> tuple:
 
 
 def get_user_role_by_uid(user_id: int) -> str:
-    sql = "select rid from user_role where uid='%s'" % (user_id)
+    sql = "select roleid from user_role where uid='%s'" % (user_id)
     res = base_db.query(sql)
     if len(res) > 0:
         return res[0][0]
     return 'none'
 
+def get_userid_by_username(name)-> int:
+    sql = "select id from user where username='%s'" % (name)
+    return  base_db.query(sql)
 
 def modify_user_pwd(name, newpwd, oldpwd) -> bool:
     sql = "update user set password='%s' where username='%s' and password='%s'" % (newpwd, name, oldpwd)
@@ -63,5 +66,6 @@ def insert_new_user_role(uid, rid) -> bool:
         return True
     else:
         return False
+    
 
 
