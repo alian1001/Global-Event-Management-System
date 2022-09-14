@@ -31,23 +31,7 @@ def login():
     else:
         username = request.form.get('username')
         password = request.form.get('password')
-        sql = 
-        result =
-        print(result)
-        if len(result) != 0:
-            #print(result[0][6], password)
-            if result[0][6] == password:
-                session['stu_id'] = result[0][2]
-                session.permanent=True
-                if stu_id=='admin':
-                    return redirect(url_for('manager'))
-                else:
-                    return redirect(url_for('index'))
-            else:
-                return u'账号或密码错误'
-        else:
-            return u'不存在这个用户'
-
+       
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method=='GET':
@@ -57,6 +41,9 @@ def register():
         password = request.form.get('password')
         email = request.form.get('email')
         print(username, password, email)
-        if (not user_db.check_user_exist(username))
+        if (not user_db.check_user_exist(username)):
+            user_db.insert_new_user(username, password, email)
+            uid = user_db.get_user_by_name(username)[0][0]
+            user_db.insert_new_user_role(uid,1)
     
         
