@@ -63,7 +63,7 @@
 			width: 80px;
 			height: 74px;
 			margin: 0 auto;
-			background: url('uwa.png') no-repeat;
+			background: url('../images/uwa.png') no-repeat;
 			background-size: contain;
 		}
 		.cent-box-header .sub-title{
