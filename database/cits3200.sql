@@ -11,54 +11,11 @@
  Target Server Version : 80030
  File Encoding         : 65001
 
- Date: 04/09/2022 11:23:42
+ Date: 15/09/2022 18:36:20
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
-
--- ----------------------------
--- Table structure for apply
--- ----------------------------
-DROP TABLE IF EXISTS `apply`;
-CREATE TABLE `apply`  (
-  `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `flowid` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'Number of orders generated automatically',
-  `userid` int UNSIGNED NOT NULL COMMENT 'id in user table',
-  `start time` datetime NOT NULL COMMENT 'the start time of appointment',
-  `end time` datetime NOT NULL COMMENT 'the end time of appointment',
-  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'Subject of appointment',
-  `content` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'detail of appointment',
-  `type` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'type of appointment',
-  `status` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'status of appointment (approve refuse or undetermined )',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'createtime',
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'changetime',
-  PRIMARY KEY (`id`) USING BTREE,
-  INDEX `FK4`(`userid` ASC) USING BTREE,
-  CONSTRAINT `FK4` FOREIGN KEY (`userid`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'applytable' ROW_FORMAT = COMPACT;
-
--- ----------------------------
--- Records of apply
--- ----------------------------
-
--- ----------------------------
--- Table structure for apply_detail
--- ----------------------------
-DROP TABLE IF EXISTS `apply_detail`;
-CREATE TABLE `apply_detail`  (
-  `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `fid` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'the flow id in apply table',
-  `audituserid` int UNSIGNED NOT NULL COMMENT 'auditid in user table',
-  `auditremark` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'describe why aggree or refuse',
-  `audittime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'audittime',
-  `status` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'status of appointment (approve refuse or undetermined )',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'apply_detailtable' ROW_FORMAT = COMPACT;
-
--- ----------------------------
--- Records of apply_detail
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for document_detail
@@ -77,6 +34,31 @@ CREATE TABLE `document_detail`  (
 
 -- ----------------------------
 -- Records of document_detail
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for event
+-- ----------------------------
+DROP TABLE IF EXISTS `event`;
+CREATE TABLE `event`  (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `userid` int UNSIGNED NOT NULL COMMENT 'id in user table',
+  `firstname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'firstname',
+  `lastname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'lastname',
+  `start time` datetime NOT NULL COMMENT 'the start time of appointment',
+  `end time` datetime NOT NULL COMMENT 'the end time of appointment',
+  `content` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'detail of appointment',
+  `email` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `phone` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'phone-number',
+  `diet` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'diet',
+  `guests` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'guests',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create-time',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'change time',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'event table' ROW_FORMAT = COMPACT;
+
+-- ----------------------------
+-- Records of event
 -- ----------------------------
 
 -- ----------------------------
@@ -104,23 +86,25 @@ CREATE TABLE `payment_detail`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`  (
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'perfername',
-  `firstname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'firstname',
-  `lastname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'lastname',
   `password` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'password',
   `email` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-  `phone` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'phonenumber',
-  `diet` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'diet',
-  `guests` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'guests',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'createtime',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'changetime',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'usertable' ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'usertable' ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
+INSERT INTO `user` VALUES ('matt', 2, '123123', '22546998@qq.com', '2022-09-14 21:58:47', '2022-09-14 21:58:47');
+INSERT INTO `user` VALUES ('mards', 3, '200456', '22220808@gmail', '2022-09-15 13:46:30', '2022-09-15 13:46:30');
+INSERT INTO `user` VALUES ('abc', 4, '123456', '123456@gmail.com', '2022-09-15 13:52:32', '2022-09-15 13:52:32');
+INSERT INTO `user` VALUES ('abcdd', 5, 'abcdd', 'abcdd@gmail.com', '2022-09-15 14:41:04', '2022-09-15 14:41:04');
+INSERT INTO `user` VALUES ('bbbb', 6, 'bbbb', 'bbbb@gamil.com', '2022-09-15 14:43:47', '2022-09-15 14:43:47');
+INSERT INTO `user` VALUES ('cccc', 7, 'cccc', 'cccc@gmail.com', '2022-09-15 14:44:52', '2022-09-15 14:44:52');
+INSERT INTO `user` VALUES ('dddd', 8, 'dddd', 'dddd@gmail.com', '2022-09-15 14:46:20', '2022-09-15 14:46:20');
 
 -- ----------------------------
 -- Table structure for user-role
