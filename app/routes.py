@@ -13,6 +13,10 @@ def index():
 def home():
     return render_template('home.html', title='Home')
 
+@app.route('/users', methods=['GET'])
+def users():
+    return render_template('users.html', title='Users')
+
 @app.route('/checkin', methods = ['GET', 'POST'])
 def checkin():
     form = checkinForm()
