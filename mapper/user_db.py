@@ -66,6 +66,12 @@ def insert_new_user_role(userid, rolename) -> bool:
         return True
     else:
         return False
-    
+
+def insert_new_checkin(firstname, lastname, email, phone, diet, guests) -> bool:
+    sql = "insert into event(firstname, lastname, email, phone, diet, guests) values ('%s', '%s', '%s', '%s','%s', '%s')"
+    if base_db.update(sql) > 0:
+        return True
+    else:
+        return False
 
 

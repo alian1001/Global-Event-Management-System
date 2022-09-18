@@ -8,7 +8,7 @@ from mapper import user_db, base_db, Apply_db
 
 @app.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
 @app.route('/home',methods=['GET'])
 def home():
     return render_template('home.html', title='Home')
@@ -16,12 +16,17 @@ def home():
 @app.route('/checkin', methods = ['GET', 'POST'])
 def checkin():
     form = checkinForm()
-    # if form.validate_on_submit():
-    #     attendee = Attendee(firstname = form.firstname.data, lastname = form.lastname.data,
-    #                         email = form.email.data, phone = form.phone.data, diet = form.diet.data)
-    #     db.session.add(attendee)
-    #     db.session.commit()
-    #     return redirect(url_for('home'))
+    if form.validate_on_submit():
+        firstname = form.firstname.data
+        lastname = form.lastname.data
+        email = form.email.data
+        phone = form.phone.data
+        diet = form.diet.data
+        guests = form.guests.data
+
+        user_db.insert_new_checkin(firstname, lastname, email, phone, diet, guests)
+        return redirect(url_for('home'))
+    
     return render_template('checkin.html', title = 'Check In', form=form)
 
 @app.route('/event', methods = ['GET', 'POST'])
