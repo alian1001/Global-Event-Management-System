@@ -30,13 +30,14 @@
             <a class="navbar-brand" href="{{ url_for('checkin') }}">Check In</a>
             <a class="navbar-brand" href="{{ url_for('create_event') }}">Event</a>
             <a class="navbar-brand" href="{{ url_for('index') }}">Users</a>
+            <a class="navbar-brand" href="{{ url_for('login') }}">Login</a>
           </div>
         </div>
       </nav>
       </header>
-      <div class="content">
-      {% block content %}{% endblock %}
-      </div>
+        {% block content %}
+        {% endblock %}
+
 
       <footer class="footer">
         <div class="container">
