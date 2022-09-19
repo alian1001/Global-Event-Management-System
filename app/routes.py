@@ -76,3 +76,7 @@ def register():
             return redirect(url_for('login'))
         if user_db.check_user_exist(username):
             return u'user has exist'
+        
+@app.route ('/forgetpassword')
+def forgetpassword():
+    return render_template('forgetpassword.html')
