@@ -8,9 +8,7 @@ from threading import Thread
 from flask_mail import Message
 from flask_mail import Mail
 import random
-
-
-
+from sqlalchemy import create_engine
 mail = Mail()
 mail.init_app(app)
 
@@ -74,12 +72,13 @@ def login():
         username = request.form.get('user_name')
         password = request.form.get('password')
 
-        sql = "select * from user where username = '%s'" % username
-        result = base_db.query(sql)
+        # sql = "select * from user where username = '%s'" % username
+        # result = base_db.query(sql)
+        result =user_db.get_user_by_name(username)
         # print(result)
-        print(result[0][2],password)
+        print(result[0][1],password)
         if len(result) != 0:
-            if result[0][2] == str(password):
+            if str(result[0][1]) == str(password):
                 session['username'] = result[0][0]
                 session.permanent = True
                 if username == 'admin':
@@ -127,6 +126,7 @@ def forgetpassword():
         elif Verification_Code:
             dbtoken =  user_db.get_user_by_name(username)
             if str(dbtoken[0][-1]) == str(Verification_Code):
+                
 
                 newpassword=  request.form.get('newpassword')
                 user_db.modify_user_pwd(username, newpassword)

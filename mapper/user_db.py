@@ -46,6 +46,7 @@ def get_userid_by_username(name)-> int:
 
 def modify_user_pwd(name, newpwd) -> bool:
     sql = "update user set password='%s' where username='%s' " % (newpwd, name)
+    print('change password')
     if base_db.update(sql) > 0:
         return True
     else:
@@ -60,7 +61,7 @@ def modify_user_token(name, token) -> bool:
 
 
 def insert_new_user(name, pwd, mail) -> bool:
-    sql = "insert into user(username, password, email) values ('%s', '%s', '%s')" % (name, pwd, mail)
+    sql = "insert into user(username, password,token, email) values ('%s', '%s',  '%s', '%s')" % (name, pwd,1, mail)
     if base_db.update(sql) > 0:
         return True
     else:
