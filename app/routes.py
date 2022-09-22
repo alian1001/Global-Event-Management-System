@@ -9,9 +9,14 @@ from mapper import user_db, base_db, Apply_db
 @app.route('/', methods=['GET'])
 def index():
     return redirect(url_for('home'))
+    
 @app.route('/home',methods=['GET'])
 def home():
     return render_template('home.html', title='Home')
+
+@app.route('/currentevent', methods=['GET'])
+def currentevent():
+    return render_template('currentevent.html', title='Current Event')
 
 @app.route('/users', methods=['GET'])
 def users():
