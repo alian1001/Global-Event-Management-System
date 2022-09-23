@@ -44,8 +44,16 @@ def get_userid_by_username(name)-> int:
     sql = "select id from user where username='%s'" % (name)
     return  base_db.query(sql)
 
-def modify_user_pwd(name, newpwd, oldpwd) -> bool:
-    sql = "update user set password='%s' where username='%s' and password='%s'" % (newpwd, name, oldpwd)
+def modify_user_pwd(name, newpwd) -> bool:
+    sql = "update user set password='%s' where username='%s' " % (newpwd, name)
+    print('change password')
+    if base_db.update(sql) > 0:
+        return True
+    else:
+        return False
+
+def modify_user_token(name, token) -> bool:
+    sql = "update user set token='%s' where username='%s' " % (token, name)
     if base_db.update(sql) > 0:
         return True
     else:
@@ -66,12 +74,6 @@ def insert_new_user_role(userid, rolename) -> bool:
         return True
     else:
         return False
-
-def insert_new_checkin(firstname, lastname, email, phone, diet, guests) -> bool:
-    sql = "insert into event(firstname, lastname, email, phone, diet, guests) values ('%s', '%s', '%s', '%s','%s', '%s')"
-    if base_db.update(sql) > 0:
-        return True
-    else:
-        return False
+    
 
 

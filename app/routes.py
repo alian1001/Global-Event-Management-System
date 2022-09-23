@@ -1,9 +1,34 @@
 from app import app
 from app.forms import checkinForm, eventForm
-from flask import Flask, render_template, redirect, url_for, request, session
+from flask import Flask, render_template, redirect, url_for, request, session,current_app
 from werkzeug.urls import url_parse
 from sqlalchemy import func, extract
-from mapper import user_db, base_db, Apply_db
+from mapper import user_db, base_db
+from threading import Thread
+from flask_mail import Message
+from flask_mail import Mail
+import random
+from sqlalchemy import create_engine
+mail = Mail()
+mail.init_app(app)
+
+
+   
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+def send_email(user_email,token, subject='Reset Your Password', template='reset_password'):
+    app = current_app._get_current_object()
+    msg = Message( ' ' + subject,
+                  sender=app.config['FLASKY_MAIL_SENDER'], recipients=[user_email])
+    msg.body = render_template(template + '.txt',token=token)
+    msg.html = render_template(template + '.html',token=token)
+    thr = Thread(target=send_async_email, args=[app, msg])
+    thr.start()
+    return thr
+
 
 
 @app.route('/', methods=['GET'])
@@ -57,12 +82,13 @@ def login():
         username = request.form.get('user_name')
         password = request.form.get('password')
 
-        sql = "select * from user where username = '%s'" % username
-        result = base_db.query(sql)
+        # sql = "select * from user where username = '%s'" % username
+        # result = base_db.query(sql)
+        result =user_db.get_user_by_name(username)
         # print(result)
-        print(password)
+        print(result[0][1],password)
         if len(result) != 0:
-            if result[0][2] == password:
+            if str(result[0][1]) == str(password):
                 session['username'] = result[0][0]
                 session.permanent = True
                 if username == 'admin':
@@ -73,7 +99,6 @@ def login():
                 return u'wrong password'
         else:
             return u'user does not exist'
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -90,3 +115,30 @@ def register():
             return redirect(url_for('login'))
         if user_db.check_user_exist(username):
             return u'user has exist'
+
+@app.route ('/forgetpassword', methods=['GET', 'POST'])
+def forgetpassword():
+    if request.method == 'GET':
+        return render_template('forgetpassword.html')
+    else:
+        username = request.form.get('user_name')
+        user_email= request.form.get('email')
+        Verification_Code =  request.form.get('Verification_Code')
+        if not Verification_Code:
+            token = ''.join([str(i) for i in random.sample(range(100),4)])    
+            app = current_app._get_current_object()
+
+            user_db.modify_user_token(username, token)
+            send_email(user_email,token, subject='Reset Your Password', template='reset_password')
+
+            return render_template('forgetpassword.html')
+        elif Verification_Code:
+            dbtoken =  user_db.get_user_by_name(username)
+            if str(dbtoken[0][-1]) == str(Verification_Code):
+                
+
+                newpassword=  request.form.get('newpassword')
+                user_db.modify_user_pwd(username, newpassword)
+                return render_template('home.html', title='Home')
+
+        return render_template('forgetpassword.html')
