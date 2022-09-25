@@ -1,15 +1,15 @@
 # from app.models import Attendee
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, TextAreaField, StringField, PasswordField, BooleanField, DateField, TimeField, validators
-from wtforms.validators import DataRequired, Email, ValidationError, EqualTo, Length
+from wtforms import SubmitField, TextAreaField, StringField, IntegerField, SelectField, PasswordField, BooleanField, DateField, TimeField, validators
+from wtforms.validators import DataRequired, Email, ValidationError, EqualTo, Length, NumberRange
 
 class checkinForm(FlaskForm):
     firstname = StringField('Firstname:',  validators=[DataRequired()])
     lastname = StringField('Lastname:',  validators=[DataRequired()])
     email = StringField('Email:', validators=[DataRequired(), Email()])
-    phone = StringField('Phone:', validators=[DataRequired()])
-    diet = StringField('Diet:', validators=[DataRequired()])
-    guests = StringField('Guests:', validators=[DataRequired()])
+    phone = StringField('Mobile Phone:', validators=[DataRequired(), Length(min=10, max=10)])
+    diet = SelectField(u'Diet:', choices=  [('No Dietary Requirements'), ('Vegetarian'), ('Vegan')])
+    guests = IntegerField(u'Additional Guests:', validators=[NumberRange(min=0)])
     
     submit = SubmitField('Check In')
 
