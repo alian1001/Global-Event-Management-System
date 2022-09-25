@@ -70,10 +70,12 @@ def create_event():
         eventname = form.event_name.data
         eventhost = form.event_host.data
         eventdate = form.event_date.data
+        start_time = form.event_time_start.data
+        end_time = form.event_time_end.data
         location = form.event_location.data
-        eventtime = form.event_time.data
+        
 
-        user_db.insert_new_event(eventname, eventhost, eventdate, location, eventtime)
+        user_db.insert_new_event(eventname, eventhost, eventdate, start_time, end_time, location)
         return redirect(url_for('home'))
 
     return render_template('event.html', title = 'Create Event', form=form)

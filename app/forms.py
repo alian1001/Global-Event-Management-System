@@ -1,6 +1,6 @@
 # from app.models import Attendee
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, TextAreaField, StringField, PasswordField, BooleanField
+from wtforms import SubmitField, TextAreaField, StringField, PasswordField, BooleanField, DateField, TimeField, validators
 from wtforms.validators import DataRequired, Email, ValidationError, EqualTo, Length
 
 class checkinForm(FlaskForm):
@@ -12,23 +12,12 @@ class checkinForm(FlaskForm):
     guests = StringField('Guests:', validators=[DataRequired()])
     
     submit = SubmitField('Check In')
-    
-
-    # def validate_email(self, email):
-    #     attendee = Attendee.query.filter_by(email=email.data).first()
-    #     if attendee is not None:
-    #         raise ValidationError('Please use a different email address.')
-
-    # def validate_phone(self, phone):
-    #     attendee = Attendee.query.filter_by(email=phone.data).first()
-    #     if attendee is not None:
-    #         raise ValidationError('Please use a different phone number.')
-
 
 class eventForm(FlaskForm):
     event_name = StringField('Event Name:',  validators=[DataRequired()])
     event_host = StringField('Host of Event:',  validators=[DataRequired()])
-    event_date = StringField('Date of Event:',  validators=[DataRequired()])
-    event_time = StringField('Time of Event:',  validators=[DataRequired()])
+    event_date = DateField('Date of Event:', format='%Y-%m-%d')
+    event_time_start = TimeField('Start Time:', format='%H:%M', validators=[DataRequired()])
+    event_time_end = TimeField('End Time:', format='%H:%M', validators=[DataRequired()])
     event_location = StringField('Location:',  validators=[DataRequired()])
     submit = SubmitField('Create Event')

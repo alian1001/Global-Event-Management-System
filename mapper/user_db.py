@@ -82,8 +82,8 @@ def insert_new_checkin(firstname, lastname, email, phone, diet, guests) -> bool:
     else:
         return False
 
-def insert_new_event(eventname, eventhost, eventdate, eventlocation, eventtime) ->  bool:
-    sql = "insert into events(eventname, eventhost, eventdate, eventlocation, eventtime) values ('%s', '%s', '%s', '%s', '%s')" % (eventname, eventhost, eventdate, eventlocation, eventtime)
+def insert_new_event(eventname, eventhost, eventdate, starttime, endtime, eventlocation) ->  bool:
+    sql = "insert into events(eventname, eventhost, eventdate, starttime, endtime, eventlocation) values ('%s', '%s', '%s', '%s', '%s', '%s')" % (eventname, eventhost, eventdate, starttime, endtime, eventlocation)
     if base_db.update(sql) > 0:
         return True
     else:
