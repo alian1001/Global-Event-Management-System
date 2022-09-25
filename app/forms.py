@@ -26,7 +26,9 @@ class checkinForm(FlaskForm):
 
 
 class eventForm(FlaskForm):
-    event_name = StringField('Event name:',  validators=[DataRequired()])
-    event_date = StringField('Date of event:',  validators=[DataRequired()])
-    event_time = StringField('Time of event:',  validators=[DataRequired()])
+    event_name = StringField('Event Name:',  validators=[DataRequired()])
+    event_host = StringField('Host of Event:',  validators=[DataRequired()])
+    event_date = StringField('Date of Event:',  validators=[DataRequired()])
+    event_time = StringField('Time of Event:',  validators=[DataRequired()])
     event_location = StringField('Location:',  validators=[DataRequired()])
+    submit = SubmitField('Create Event')

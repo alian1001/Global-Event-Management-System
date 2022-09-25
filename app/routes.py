@@ -66,12 +66,16 @@ def checkin():
 @app.route('/event', methods = ['GET', 'POST'])
 def create_event():
     form = eventForm()
-    # if form.validate_on_submit():
-    #     event = Event(event_name = form.event_name.data, event_date = form.event_date.data, 
-    #                     event_time = form.event_time.data, event_location = form.event_location.data)
-    #     db.session.add(event)
-    #     db.session.commit()
-    #     return redirect(url_for('home'))
+    if form.validate_on_submit():
+        eventname = form.event_name.data
+        eventhost = form.event_host.data
+        eventdate = form.event_date.data
+        location = form.event_location.data
+        eventtime = form.event_time.data
+
+        user_db.insert_new_event(eventname, eventhost, eventdate, location, eventtime)
+        return redirect(url_for('home'))
+
     return render_template('event.html', title = 'Create Event', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
