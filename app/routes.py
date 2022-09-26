@@ -1,5 +1,5 @@
 from app import app
-from app.forms import checkinForm, eventForm
+from app.forms import checkinForm, checkinAndPayForm, eventForm
 from flask import Flask, render_template, redirect, url_for, request, session,current_app
 from werkzeug.urls import url_parse
 from sqlalchemy import func, extract
@@ -62,6 +62,22 @@ def checkin():
         return redirect(url_for('home'))
     
     return render_template('checkin.html', title = 'Check In', form=form)
+
+@app.route('/checkinAndPay', methods = ['GET', 'POST'])
+def checkinAndPay():
+    form = checkinAndPayForm()
+    if form.validate_on_submit():
+        firstname = form.firstname.data
+        lastname = form.lastname.data
+        email = form.email.data
+        phone = form.phone.data
+        diet = form.diet.data
+        guests = form.guests.data
+
+        user_db.insert_new_checkin(firstname, lastname, email, phone, diet, guests)
+        return redirect(url_for('home'))
+    
+    return render_template('checkinAndPay.html', title = 'Check In & Pay', form=form)
 
 @app.route('/event', methods = ['GET', 'POST'])
 def create_event():

@@ -9,6 +9,7 @@
         <th scope="col">Event Name</th>
         <th scope="col">Event Host</th>
         <th scope="col">Date</th>
+		 <th scope="col">Price per Ticket</th>
       </tr>
     </thead>
     <tbody>
@@ -17,6 +18,7 @@
         <td>Mark's Birthday Party</td>
         <td>Mark Rober</td>
         <td>13/11/2022</td>
+		<td>$0</td>
 		<td bgcolor="ffffff"><a href="{{ url_for('checkin') }}">Check In</a></td>
       </tr>
       <tr>
@@ -24,12 +26,8 @@
         <td>George Washington's Dance Party</td>
         <td>George Washington</td>
         <td>14/12/1798</td>
-      </tr>
-      <tr>
-        <th scope="row">3</th>
-        <td>Larry's Swooping Season</td>
-        <td>Larry the Magpie</td>
-        <td>29/09/2024</td>
+		<td>$5</td>
+		<td bgcolor="ffffff"><a href="{{ url_for('checkinAndPay') }}">Check In</a></td>
       </tr>
     </tbody>
   </table>
