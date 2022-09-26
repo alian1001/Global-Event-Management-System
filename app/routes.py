@@ -41,7 +41,7 @@ def home():
 
 @app.route('/currentevent', methods=['GET'])
 def currentevent():
-    return render_template('currentevent.html', title='Current Event')
+    return render_template('currentevent.html', title='Current Events')
 
 @app.route('/users', methods=['GET'])
 def users():

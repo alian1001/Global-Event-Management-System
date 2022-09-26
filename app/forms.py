@@ -11,7 +11,7 @@ class checkinForm(FlaskForm):
     diet = SelectField(u'Diet:', choices=  [('No Dietary Requirements'), ('Vegetarian'), ('Vegan')])
     guests = IntegerField(u'Additional Guests:', validators=[NumberRange(min=0)])
     
-    submit = SubmitField('Check In')
+    submit = SubmitField('Check In & Pay')
 
 class eventForm(FlaskForm):
     event_name = StringField('Event Name:',  validators=[DataRequired()])
