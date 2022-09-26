@@ -5,6 +5,8 @@ from werkzeug.urls import url_parse
 from sqlalchemy import func, extract
 from mapper import user_db, base_db, Apply_db
 
+import stripe
+stripe.api_key = app.config["STRIPE_SECRET"]
 
 @app.route('/', methods=['GET'])
 def index():
@@ -32,12 +34,17 @@ def checkin():
 @app.route('/event', methods = ['GET', 'POST'])
 def create_event():
     form = eventForm()
-    # if form.validate_on_submit():
-    #     event = Event(event_name = form.event_name.data, event_date = form.event_date.data, 
-    #                     event_time = form.event_time.data, event_location = form.event_location.data)
-    #     db.session.add(event)
-    #     db.session.commit()
-    #     return redirect(url_for('home'))
+    if form.validate_on_submit():
+        
+        stripe.Product.create(name=form.event_name.data, shippable=False)
+
+
+
+        # event = Event(event_name = form.event_name.data, event_date = form.event_date.data, 
+        #                 event_time = form.event_time.data, event_location = form.event_location.data)
+        # db.session.add(event)
+        # db.session.commit()
+        # return redirect(url_for('home'))
     return render_template('event.html', title = 'Create Event', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
