@@ -11,7 +11,9 @@ import random
 from sqlalchemy import create_engine
 mail = Mail()
 mail.init_app(app)
+import stripe
 
+stripe.api_key = app.config["STRIPE_SECRET"]
 
    
 
@@ -89,9 +91,18 @@ def create_event():
         start_time = form.event_time_start.data
         end_time = form.event_time_end.data
         location = form.event_location.data
+        ticketprice = form.ticket_price.data*100 # Convert from dollars to cents
+
+        product = stripe.Product.create(
+            name=f"{eventname} Ticket",
+            shippable=False,
+            default_price_data={"currency":"aud",
+                                "unit_amount_decimal":ticketprice
+            }
+        )
         
 
-        user_db.insert_new_event(eventname, eventhost, eventdate, start_time, end_time, location)
+        user_db.insert_new_event(eventname, eventhost, eventdate, start_time, end_time, location, product.id)
         return redirect(url_for('home'))
 
     return render_template('event.html', title = 'Create Event', form=form)
