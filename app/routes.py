@@ -96,6 +96,7 @@ def create_event():
         product = stripe.Product.create(
             name=f"{eventname} Ticket",
             shippable=False,
+            description=f"{eventhost} - {eventdate} {start_time} to {end_time}, {location}.",
             default_price_data={"currency":"aud",
                                 "unit_amount_decimal":ticketprice
             }
