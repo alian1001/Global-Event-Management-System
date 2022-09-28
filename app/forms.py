@@ -8,7 +8,7 @@ class checkinForm(FlaskForm):
     lastname = StringField('Lastname:',  validators=[DataRequired()])
     email = StringField('Email:', validators=[DataRequired(), Email()])
     phone = StringField('Mobile Phone:', validators=[DataRequired(), Length(min=10, max=10)])
-    diet = SelectField(u'Diet:', choices=  [('No Dietary Requirements'), ('Vegetarian'), ('Vegan')])
+    diet = StringField('Dietary Requirements:',  validators=[DataRequired()])
     guests = IntegerField(u'Additional Guests:', validators=[NumberRange(min=0)])
     
     submit = SubmitField('Check In')
@@ -18,7 +18,7 @@ class checkinAndPayForm(FlaskForm):
     lastname = StringField('Lastname:',  validators=[DataRequired()])
     email = StringField('Email:', validators=[DataRequired(), Email()])
     phone = StringField('Mobile Phone:', validators=[DataRequired(), Length(min=10, max=10)])
-    diet = SelectField(u'Diet:', choices=  [('No Dietary Requirements'), ('Vegetarian'), ('Vegan')])
+    diet = StringField('Dietary Requirements:',  validators=[DataRequired()])
     guests = IntegerField(u'Additional Guests:', validators=[NumberRange(min=0)])
     
     submit = SubmitField('Check In & Pay')
