@@ -2,15 +2,10 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'secret_key'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'app.db')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    STRIPE_SECRET = os.environ.get('STRIPE_SECRET') or 'stripe_secret'
     
     #set the email system
     SECRET_KEY = 'hard to guess string'
-    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_DEBUG = True
     MAIL_SERVER = 'smtp.qq.com'
     MAIL_PORT = 465
