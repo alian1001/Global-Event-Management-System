@@ -3,33 +3,31 @@
 {% block content %}
 
 <table class="table table-striped table-bordered table-hover">
-    <thead>
+	<thead>
       <tr>
-        <th scope="col">Event ID</th>
         <th scope="col">Event Name</th>
         <th scope="col">Event Host</th>
         <th scope="col">Date</th>
-		 <th scope="col">Price per Ticket</th>
+		<th scope="col">Start Time</th>
+		<th scope="col">End Time</th>
+		<th scope="col">Price per Ticket</th>
       </tr>
     </thead>
+	
+    {% for event in events %}	
     <tbody>
       <tr>
-        <th scope="row">1</th>
-        <td>Mark's Birthday Party</td>
-        <td>Mark Rober</td>
-        <td>13/11/2022</td>
-		<td>$0</td>
+        <td>{{ event[1] }}</td>
+        <td>{{ event[2] }}</td>
+        <td>{{ event[3] }}</td>
+		<td>{{ event[4] }}</td>
+		<td>{{ event[5] }}</td>
+		<td>Add Price to DB</td>
 		<td bgcolor="ffffff"><a href="{{ url_for('checkin') }}">Check In</a></td>
       </tr>
-      <tr>
-        <th scope="row">2</th>
-        <td>George Washington's Dance Party</td>
-        <td>George Washington</td>
-        <td>14/12/1798</td>
-		<td>$5</td>
-		<td bgcolor="ffffff"><a href="{{ url_for('checkinAndPay') }}">Check In</a></td>
-      </tr>
     </tbody>
+	{% endfor %}
+	
   </table>
 
 {% endblock %}

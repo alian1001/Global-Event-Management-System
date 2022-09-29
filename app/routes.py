@@ -8,6 +8,7 @@ from threading import Thread
 from flask_mail import Message
 from flask_mail import Mail
 import random
+import sqlite3
 from sqlalchemy import create_engine
 mail = Mail()
 mail.init_app(app)
@@ -41,7 +42,11 @@ def home():
 
 @app.route('/currentevent', methods=['GET'])
 def currentevent():
-    return render_template('currentevent.html', title='Current Events')
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM 'Event'")
+	
+    return render_template('currentevent.html', title='Current Events', events=cursor.fetchall())
 
 @app.route('/users', methods=['GET'])
 def users():
@@ -83,15 +88,19 @@ def checkinAndPay():
 def create_event():
     form = eventForm()
     if form.validate_on_submit():
-        eventname = form.event_name.data
-        eventhost = form.event_host.data
-        eventdate = form.event_date.data
-        start_time = form.event_time_start.data
-        end_time = form.event_time_end.data
+        name = form.event_name.data
+        host = form.event_host.data
+        date = form.event_date.data
+        start = str(form.event_time_start.data)
+        end = str(form.event_time_end.data)
         location = form.event_location.data
-        
-
-        user_db.insert_new_event(eventname, eventhost, eventdate, start_time, end_time, location)
+		
+        sql = ''' INSERT INTO Event(eventName, eventHost, eventDate, startTime, endTime, eventLocation)
+                       VALUES(?,?,?,?,?,?) '''
+        conn = sqlite3.connect('db.sqlite3')
+        cursor = conn.cursor()
+        cursor.execute(sql, (name, host, date, start, end, location) )
+        conn.commit()
         return redirect(url_for('home'))
 
     return render_template('event.html', title = 'Create Event', form=form)
@@ -118,9 +127,9 @@ def login():
                 else:
                     return render_template('home.html')
             else:
-                return u'wrong password'
+                return u'Incorrect password.'
         else:
-            return u'user does not exist'
+            return u'User does not exist.'
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -136,7 +145,7 @@ def register():
             uid = user_db.get_user_by_name(username)[0][1]
             return redirect(url_for('login'))
         if user_db.check_user_exist(username):
-            return u'user has exist'
+            return u'User already exists.'
 
 @app.route ('/forgetpassword', methods=['GET', 'POST'])
 def forgetpassword():
