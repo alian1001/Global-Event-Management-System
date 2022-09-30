@@ -12,8 +12,12 @@ import sqlite3
 from sqlalchemy import create_engine
 mail = Mail()
 mail.init_app(app)
+import stripe
 
+stripe.api_key = app.config["STRIPE_SECRET"]
 session1 = 0
+
+
 def send_async_email(app, msg):
     with app.app_context():
         mail.send(msg)
@@ -106,13 +110,25 @@ def create_event():
         start = str(form.event_time_start.data)
         end = str(form.event_time_end.data)
         location = form.event_location.data
+        ticketprice = form.ticket_price.data*100 # Convert from dollars to cents
+
+        product = stripe.Product.create(
+            name=f"{eventname} Ticket",
+            shippable=False,
+            description=f"{eventhost} - {eventdate} {start_time} to {end_time}, {location}.",
+            default_price_data={"currency":"aud",
+                                "unit_amount_decimal":ticketprice
+            }
+        )
         
-        sql = ''' INSERT INTO Event(eventName, eventHost, eventDate, startTime, endTime, eventLocation)
-                       VALUES(?,?,?,?,?,?) '''
+
+        sql = ''' INSERT INTO Event(eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID)
+                       VALUES(?,?,?,?,?,?,?) '''
         conn = sqlite3.connect('db.sqlite3')
         cursor = conn.cursor()
-        cursor.execute(sql, (name, host, date, start, end, location) )
+        cursor.execute(sql, (name, host, date, start, end, location, product.id) )
         conn.commit()
+
         return redirect(url_for('home'))
 
     return render_template('event.html', title = 'Create Event', form=form)
@@ -195,6 +211,27 @@ def forgetpassword():
 
         return render_template('forgetpassword.html')
 
+### Stripe Implementation
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    'price': '{{PRICE_ID}}',
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url=request.base_url + '/success',
+            cancel_url=request.base_url + '/cancel',
+        )
+    except Exception as e:
+        return str(e)
+
+    return redirect(checkout_session.url, code=303)
+
 @app.route("/logout", methods=["GET"])
 def logout():
     """logout"""
@@ -202,4 +239,3 @@ def logout():
     session.clear()
     status = False
     return  render_template('home.html', title='Home', status=status)
-
