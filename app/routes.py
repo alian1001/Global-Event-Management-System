@@ -1,6 +1,6 @@
 from app import app
 from app.forms import checkinForm, checkinAndPayForm, eventForm
-from flask import Flask, render_template, redirect, url_for, request, session,current_app
+from flask import Flask, render_template, redirect, url_for, request, session,current_app,jsonify
 from werkzeug.urls import url_parse
 from sqlalchemy import func, extract
 from mapper import user_db, base_db
@@ -8,14 +8,15 @@ from threading import Thread
 from flask_mail import Message
 from flask_mail import Mail
 import random
+import sqlite3
 from sqlalchemy import create_engine
 mail = Mail()
 mail.init_app(app)
 import stripe
 
 stripe.api_key = app.config["STRIPE_SECRET"]
+session1 = 0
 
-   
 
 def send_async_email(app, msg):
     with app.app_context():
@@ -35,15 +36,33 @@ def send_email(user_email,token, subject='Reset Your Password', template='reset_
 
 @app.route('/', methods=['GET'])
 def index():
+
     return redirect(url_for('home'))
     
 @app.route('/home',methods=['GET'])
 def home():
-    return render_template('home.html', title='Home')
+    if session1==0:
+        session.clear()
+    status = False
+    print(session.get('username'),'username')
+    if session.get('login')=='OK' and  session.get('username'):
+        status = True
+    return render_template('home.html', title='Home', status=status, username = session.get('username'))
 
 @app.route('/currentevent', methods=['GET'])
 def currentevent():
-    return render_template('currentevent.html', title='Current Events')
+    if session1==0:
+        session.clear()
+    status = False
+    print(session.get('username'),'username')
+    if session.get('login')=='OK' and  session.get('username'):
+        status = True
+        
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM 'Event'")
+	
+    return render_template('currentevent.html', title='Current Events', status=status,  events=cursor.fetchall(), username = session.get('username'))
 
 @app.route('/users', methods=['GET'])
 def users():
@@ -85,11 +104,11 @@ def checkinAndPay():
 def create_event():
     form = eventForm()
     if form.validate_on_submit():
-        eventname = form.event_name.data
-        eventhost = form.event_host.data
-        eventdate = form.event_date.data
-        start_time = form.event_time_start.data
-        end_time = form.event_time_end.data
+        name = form.event_name.data
+        host = form.event_host.data
+        date = form.event_date.data
+        start = str(form.event_time_start.data)
+        end = str(form.event_time_end.data)
         location = form.event_location.data
         ticketprice = form.ticket_price.data*100 # Convert from dollars to cents
 
@@ -103,18 +122,29 @@ def create_event():
         )
         
 
-        user_db.insert_new_event(eventname, eventhost, eventdate, start_time, end_time, location, product.id)
+        sql = ''' INSERT INTO Event(eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID)
+                       VALUES(?,?,?,?,?,?,?) '''
+        conn = sqlite3.connect('db.sqlite3')
+        cursor = conn.cursor()
+        cursor.execute(sql, (name, host, date, start, end, location, product.id) )
+        conn.commit()
+
         return redirect(url_for('home'))
 
     return render_template('event.html', title = 'Create Event', form=form)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+
+    session['login'] = ''
+    
     if request.method == 'GET':
         return render_template('login.html')
     else:
         username = request.form.get('user_name')
         password = request.form.get('password')
+
 
         # sql = "select * from user where username = '%s'" % username
         # result = base_db.query(sql)
@@ -123,16 +153,20 @@ def login():
         print(result[0][1],password)
         if len(result) != 0:
             if str(result[0][1]) == str(password):
+                print(result,'result')
                 session['username'] = result[0][0]
+                session['login']='OK'
                 session.permanent = True
+                global session1
+                session1 = 1
                 if username == 'admin':
                     return redirect(url_for('admin'))
                 else:
-                    return render_template('home.html')
+                    return redirect(url_for('home'))
             else:
-                return u'wrong password'
+                return u'Incorrect password.'
         else:
-            return u'user does not exist'
+            return u'User does not exist.'
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -148,7 +182,7 @@ def register():
             uid = user_db.get_user_by_name(username)[0][1]
             return redirect(url_for('login'))
         if user_db.check_user_exist(username):
-            return u'user has exist'
+            return u'User already exists.'
 
 @app.route ('/forgetpassword', methods=['GET', 'POST'])
 def forgetpassword():
@@ -197,3 +231,11 @@ def create_checkout_session():
         return str(e)
 
     return redirect(checkout_session.url, code=303)
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    """logout"""
+    # clear session
+    session.clear()
+    status = False
+    return  render_template('home.html', title='Home', status=status)
