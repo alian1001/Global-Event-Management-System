@@ -1,23 +1,27 @@
-{% extends "base.html"%} 
-
-{% block content %}
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
 <body>
-    <section>
-        <img class="mySlides" src="static/assets/dj.jpg" style="width:100%">
-        <img class="mySlides" src="static/assets/stage.jpg" style="width:100%">
-        <img class="mySlides" src="static/assets/wedding.jpg" style="width:100%">
-      </section>
 
-      <section class="w3-container w3-center" style="max-width:600px">
-        <h2 class="w3-wide">G.E.M.S</h2>
-        <p class="w3-opacity"><i>Global Event Management System</i></p>
-      </section>
-      
-</body>
+<!-- Slide Show -->
+<section>
+  <img class="mySlides" src="static/assets/dj.jpg"
+  style="width:100%">
+  <img class="mySlides" src="static/assets/stage.jpg"
+  style="width:100%">
+  <img class="mySlides" src="static/assets/wedding.jpg"
+  style="width:100%">
+</section>
+
+<h1>G.E.M.S</h1>
+
 
 <script>
-    var myIndex = 0;
-    carousel();
+// Automatic Slideshow - change image every 3 seconds
+var myIndex = 0;
+carousel();
 
 function carousel() {
   var i;
@@ -32,4 +36,6 @@ function carousel() {
 }
 </script>
 
-{% endblock %}
+</body>
+</html>
+
