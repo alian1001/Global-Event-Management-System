@@ -42,12 +42,12 @@
               {%if status%}
 			        <a class="dropdown-item" href="{{ url_for('login') }}">{{username }}</a>
               <a class="dropdown-item" href="{{ url_for('create_event') }}">Create Event</a>
-              <a class="dropdown-item" href="{{ url_for('logout') }}">logout</a>              
+              <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a> 
+              <a class="dropdown-item" href="{{ url_for('users') }}">Account</a>             
               {%else%}
               <a class="dropdown-item" href="{{ url_for('login') }}">Login/Register</a>
               {%endif%}
-
-              <a class="dropdown-item" href="{{ url_for('users') }}">Account</a>
+              
             </div>
           </li>
         </ul>

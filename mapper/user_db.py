@@ -76,7 +76,7 @@ def insert_new_user_role(userid, rolename) -> bool:
         return False
 
 def insert_new_checkin(firstname, lastname, email, phone, diet, guests) -> bool:
-    sql = "insert into checkin(firstname, lastname, email, phone, diet, guests) values ('%s', '%s', '%s', '%s','%s', '%s')" % (firstname, lastname, email, phone, diet, guests)
+    sql = "insert into guest(firstname, lastname, email, mobileNumber, dietaryReq, guests) values ('%s', '%s', '%s', '%s','%s', '%s')" % (firstname, lastname, email, phone, diet, guests)
     if base_db.update(sql) > 0:
         return True
     else:
