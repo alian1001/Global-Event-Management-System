@@ -1,17 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>Login</title>
+{% extends "base.html"%} 
+
+{% block content %}
+
+<title>Login</title>
 	<link rel="stylesheet" type="text/css" href="../static/css/register-login.css">
 	<link rel="icon" href="../static/images/uwa.png" type="image/x-icon"/>
-</head>
-<body>
-<div id="box"></div>
+
 <div class="cent-box">
 	<div class="cent-box-header">
 		<h1 class="main-title hide">Group 9</h1>
-		<h2 class="sub-title">Event Management System</h2>
+		<h3><a href="{{ url_for('index') }}">G.E.M.S</a></h3>
 	</div>
 
 	<div class="cont-main clearfix">
@@ -42,18 +40,12 @@
 		<div class="remember clearfix">
 			<label class="remember-me"><span class="icon"><span class="zt"></span></span><input type="checkbox" name="remember-me" id="remember-me" class="remember-mecheck" checked>remember-me</label>
 			<label class="forgot-password">
-				<a href="#">Forget Password</a>
+				<a href="{{url_for('forgetpassword')}}">Forgot Password</a>
 			</label>
 		</div>
 	</div>
 </div>
 
-
-<script src='../static/js/particles.js' type="text/javascript"></script>
-<script src='../static/js/background.js' type="text/javascript"></script>
-<script src='../static/js/jquery.min.js' type="text/javascript"></script>
-<script src='../static/js/layer/layer.js' type="text/javascript"></script>
-<script src='../static/js/index.js' type="text/javascript"></script>
 <script>
 	
 	$("#remember-me").click(function(){
@@ -65,5 +57,5 @@
 		}
 	});
 </script>
-</body>
-</html>
+
+{% endblock %}

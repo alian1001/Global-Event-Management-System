@@ -1,17 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>Register</title>
-	<link rel="stylesheet" type="text/css" href="../static/css/register-login.css">
-    <link rel="icon" href="../static/images/uwa.png" type="image/x-icon"/>
-</head>
-<body>
-<div id="box"></div>
+{% extends "base.html"%} 
+
+{% block content %}
+
+
+<title>Register</title>
+<link rel="stylesheet" type="text/css" href="../static/css/register-login.css">
+<link rel="icon" href="../static/images/uwa.png" type="image/x-icon"/>
+
 <div class="cent-box register-box">
 	<div class="cent-box-header">
 		<h1 class="main-title hide">UWA CITS3200 Group 9</h1>
-		<h2 class="sub-title">Event Management System</h2>
+		<h3><a href="{{ url_for('index') }}">G.E.M.S</a></h3>
 	</div>
 
 	<div class="cont-main clearfix">
@@ -34,21 +33,17 @@
                     <div class="group-ipt email">
                         <input type="email" name="email" id="email" class="ipt" placeholder="email" required>
                     </div>
+					
+				</div>	
                 <div class="button">
-                    <button type="submit" class="login-btn register-btn" id="button">Submit</button>
+                    <button type="submit" class="login-btn register-btn" id="button">Register</button>
                 </div>
             </div>
-            </div>
         </form>
-
 	</div>
 </div>
 
-<script src='../static/js/particles.js' type="text/javascript"></script>
-<script src='../static/js/background.js' type="text/javascript"></script>
-<script src='../static/js/jquery.min.js' type="text/javascript"></script>
-<script src='../static/js/layer/layer.js' type="text/javascript"></script>
-<script src='../static/js/index.js' type="text/javascript"></script>
+
 <script>
 
 	$(".login-btn").click(function(){
@@ -66,5 +61,6 @@
 		}
 	})
 </script>
-</body>
-</html>
+
+
+{% endblock %}

@@ -2,30 +2,34 @@
 
 {% block content %}
 <body>
-    <h1>Event Manager</h1>
-    <p>Event Management System
+    <section>
+        <img class="mySlides" src="static/assets/dj.jpg" style="width:100%">
+        <img class="mySlides" src="static/assets/stage.jpg" style="width:100%">
+        <img class="mySlides" src="static/assets/wedding.jpg" style="width:100%">
+      </section>
 
-        Creation of a secure web-based shop front for event attendees:<br>
-        to book his/her attendance (including partner, children);<br>
-        to register contact details;<br>
-        to indicate no fees involved;<br>
-        to enable uploading images/text; and<br>
-        to interface with printer to generate badges<br>
-        Security of data is an important consideration.<br>
-        
-        Client<br>
-        
-        
-        Contact: Ruby Chan<br>
-        Phone: 6488 1170<br>
-        Email: ruby.chan@uwa.edu.au<br>
-        Preferred contact: Phone,Email<br>
-        Location: Perth, UWA Physics Bldg.<br>
-        IP Exploitation Model<br>
-        
-        
-        The IP exploitation model requested by the Client is: <br>Creative Commons (open source) http://creativecommons.org.au/<br>
-        </p>
+      <section class="w3-container w3-center" style="max-width:600px">
+        <h2 class="w3-wide">G.E.M.S</h2>
+        <p class="w3-opacity"><i>Global Event Management System</i></p>
+      </section>
+      
 </body>
+
+<script>
+    var myIndex = 0;
+    carousel();
+
+function carousel() {
+  var i;
+  var x = document.getElementsByClassName("mySlides");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";
+  }
+  myIndex++;
+  if (myIndex > x.length) {myIndex = 1}
+  x[myIndex-1].style.display = "block";
+  setTimeout(carousel, 3000);
+}
+</script>
 
 {% endblock %}

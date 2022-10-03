@@ -14,3 +14,6 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+#ignore the database
+db.sqlite3

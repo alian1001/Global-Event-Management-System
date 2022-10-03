@@ -52,18 +52,20 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Configure the Stripe API key
 
-### MacOS/Linux (Untested)
+## Add the Stripe secret key to your environment variables
+
+### MacOs/Linux
 
 ```
-export STRIPE_SECRET="<Stripe Secret Key>"
+export STRIPE_SECRET="<Your Stripe Secret Key Here>"
 ```
 
 ### Windows (Powershell)
 
 ```
-$env:STRIPE_SECRET="<Stripe Secret Key>"
+
+$env:STRIPE_SECRET="<Your Stripe Secret Key Here>"
 ```
 
 ## Finally, run the application with this command
