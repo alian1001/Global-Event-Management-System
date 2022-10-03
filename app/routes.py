@@ -89,13 +89,20 @@ def checkin():
 @app.route('/checkinAndPay', methods = ['GET', 'POST'])
 def checkinAndPay():
     form = checkinAndPayForm()
+
+    # Return user to events page if no event specified
+    if "eventID" not in request.args:
+        return redirect(url_for('currentevent'), code=303)
+
     eventID = request.args["eventID"]
 
     with sqlite3.connect('db.sqlite3') as conn:
         cursor = conn.cursor()
         conn = sqlite3.connect('db.sqlite3')
-        cursor.execute("SELECT * FROM 'Event' WHERE eventID = ?", eventID)
+        cursor.execute("SELECT * FROM 'Event' WHERE eventID = (?)", (eventID,))
         event = cursor.fetchone()
+
+        product = stripe.Product.retrieve(event[8])
 
         if form.validate_on_submit():
             firstname = form.firstname.data
@@ -106,11 +113,12 @@ def checkinAndPay():
             guests = form.guests.data
 
             try:
+
                 checkout_session = stripe.checkout.Session.create(
                     line_items=[
                         {
                             # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                            'price': '{{PRICE_ID}}',
+                            'price': product.default_price,
                             'quantity': 1,
                         },
                     ],
