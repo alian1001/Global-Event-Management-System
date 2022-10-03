@@ -77,9 +77,13 @@ def checkin():
         email = form.email.data
         phone = form.phone.data
         diet = form.diet.data
-        guests = form.guests.data
 
-        user_db.insert_new_checkin(firstname, lastname, email, phone, diet, guests)
+        sql = ''' INSERT INTO Guest(eventID, firstName, lastName, email, mobileNumber, dietaryReq)
+                       VALUES(?,?,?,?,?,?) '''
+        conn = sqlite3.connect('db.sqlite3')
+        cursor = conn.cursor()
+        cursor.execute(sql, ('1', firstname, lastname, email, phone, diet) )
+        conn.commit()
         return redirect(url_for('home'))
     
     return render_template('checkin.html', title = 'Check In', form=form)
@@ -93,9 +97,13 @@ def checkinAndPay():
         email = form.email.data
         phone = form.phone.data
         diet = form.diet.data
-        guests = form.guests.data
 
-        user_db.insert_new_checkin(firstname, lastname, email, phone, diet, guests)
+        sql = ''' INSERT INTO Guest(eventID, firstName, lastName, email, mobileNumber, dietaryReq)
+                       VALUES(?,?,?,?,?,?) '''
+        conn = sqlite3.connect('db.sqlite3')
+        cursor = conn.cursor()
+        cursor.execute(sql, ('1', firstname, lastname, email, phone, diet) )
+        conn.commit()
         return redirect(url_for('home'))
     
     return render_template('checkinAndPay.html', title = 'Check In & Pay', form=form)
@@ -129,7 +137,7 @@ def create_event():
         cursor.execute(sql, (name, host, date, start, end, location, product.id) )
         conn.commit()
 
-        return redirect(url_for('home'))
+        return redirect(url_for('currentevent'))
 
     return render_template('event.html', title = 'Create Event', form=form)
 
