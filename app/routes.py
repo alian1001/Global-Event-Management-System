@@ -133,7 +133,7 @@ def checkinAndPay():
 
             return redirect(url_for('home'))
     
-        return render_template('checkinAndPay.html', title = 'Check In & Pay', form=form event=event)
+        return render_template('checkinAndPay.html', title = 'Check In & Pay', form=form, event=event)
 
 @app.route('/event', methods = ['GET', 'POST'])
 def create_event():
