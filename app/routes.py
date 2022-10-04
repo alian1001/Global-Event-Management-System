@@ -33,6 +33,8 @@ def send_email(user_email,token, subject='Reset Your Password', template='reset_
     return thr
 
 
+import stripe
+stripe.api_key = app.config["STRIPE_SECRET"]
 
 @app.route('/', methods=['GET'])
 def index():
@@ -119,22 +121,59 @@ def checkin():
 @app.route('/checkinAndPay', methods = ['GET', 'POST'])
 def checkinAndPay():
     form = checkinAndPayForm()
-    if form.validate_on_submit():
-        firstname = form.firstname.data
-        lastname = form.lastname.data
-        email = form.email.data
-        phone = form.phone.data
-        diet = form.diet.data
 
-        sql = ''' INSERT INTO Guest(eventID, firstName, lastName, email, mobileNumber, dietaryReq)
-                       VALUES(?,?,?,?,?,?) '''
-        conn = sqlite3.connect('db.sqlite3')
+    # Return user to events page if no event specified
+    if "eventID" not in request.args:
+        return redirect(url_for('currentevent'), code=303)
+
+    eventID = request.args["eventID"]
+
+    with sqlite3.connect('db.sqlite3') as conn:
         cursor = conn.cursor()
-        cursor.execute(sql, ('1', firstname, lastname, email, phone, diet) )
-        conn.commit()
-        return redirect(url_for('home'))
+        conn = sqlite3.connect('db.sqlite3')
+        cursor.execute("SELECT * FROM 'Event' WHERE eventID = (?)", (eventID,))
+        event = cursor.fetchone()
+
+        product = stripe.Product.retrieve(event[8], expand=["default_price"])
+
+        if form.validate_on_submit():
+            firstname = form.firstname.data
+            lastname = form.lastname.data
+            email = form.email.data
+            phone = form.phone.data
+            diet = form.diet.data
+            guests = int(form.guests.data)
+
+            try:
+
+                checkout_session = stripe.checkout.Session.create(
+                    line_items=[
+                        {
+                            # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                            'price': product.default_price.id,
+                            'quantity': guests+1,
+                        },
+                    ],
+                    mode='payment',
+                    success_url=request.base_url,
+                    cancel_url=request.base_url,
+                    customer_email=email
+                )
+            except Exception as e:
+                return str(e)
+            
+            sql = ''' INSERT INTO Guest(firstName, lastName, email, mobileNumber, dietaryReq, eventID)
+                    VALUES(?,?,?,?,?,?) '''
+
+            cursor.execute(sql, (firstname,lastname,email,phone,diet,eventID) )
+            conn.commit()
+
+            return redirect(checkout_session.url, code=303)
+        unit_price = round(product.default_price.unit_amount/100,2)
+        unit_price = int(unit_price) if unit_price.is_integer() else unit_price # Remove .00 unless required
+        price = f"${unit_price} per person"
     
-    return render_template('checkinAndPay.html', title = 'Check In & Pay', form=form)
+        return render_template('checkinAndPay.html', title = 'Check In & Pay', form=form, event=event, price=price)
 
 @app.route('/event', methods = ['GET', 'POST'])
 def create_event():
@@ -148,21 +187,24 @@ def create_event():
         location = form.event_location.data
         ticketprice = form.ticket_price.data*100 # Convert from dollars to cents
 
-        product = stripe.Product.create(
-            name=f"{eventname} Ticket",
-            shippable=False,
-            description=f"{eventhost} - {eventdate} {start_time} to {end_time}, {location}.",
-            default_price_data={"currency":"aud",
-                                "unit_amount_decimal":ticketprice
-            }
-        )
-        
+        if ticketprice:
+            product = stripe.Product.create(
+                name=f"{name} Ticket",
+                shippable=False,
+                description=f"{host} - {date} {start} to {end}, {location}.",
+                default_price_data={"currency":"aud",
+                                    "unit_amount_decimal":ticketprice
+                }
+            )
+            productID = product.id
+        else:
+            productID = None
 
         sql = ''' INSERT INTO Event(eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID)
                        VALUES(?,?,?,?,?,?,?) '''
         conn = sqlite3.connect('db.sqlite3')
         cursor = conn.cursor()
-        cursor.execute(sql, (name, host, date, start, end, location, product.id) )
+        cursor.execute(sql, (name, host, date, start, end, location, productID) )
         conn.commit()
 
         return redirect(url_for('currentevent'))
@@ -173,7 +215,6 @@ def create_event():
     if session.get('login')=='OK' and  session.get('username'):
         status = True
     return render_template('event.html', title='Create Event', status=status, form=form, username = session.get('username'))
-
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -254,25 +295,25 @@ def forgetpassword():
         return render_template('forgetpassword.html')
 
 ### Stripe Implementation
-@app.route('/create-checkout-session', methods=['POST'])
-def create_checkout_session():
-    try:
-        checkout_session = stripe.checkout.Session.create(
-            line_items=[
-                {
-                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                    'price': '{{PRICE_ID}}',
-                    'quantity': 1,
-                },
-            ],
-            mode='payment',
-            success_url=request.base_url + '/success',
-            cancel_url=request.base_url + '/cancel',
-        )
-    except Exception as e:
-        return str(e)
+# @app.route('/create-checkout-session', methods=['POST'])
+# def create_checkout_session():
+#     try:
+#         checkout_session = stripe.checkout.Session.create(
+#             line_items=[
+#                 {
+#                     # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+#                     'price': '{{PRICE_ID}}',
+#                     'quantity': 1,
+#                 },
+#             ],
+#             mode='payment',
+#             success_url=request.base_url + '/success',
+#             cancel_url=request.base_url + '/cancel',
+#         )
+#     except Exception as e:
+#         return str(e)
 
-    return redirect(checkout_session.url, code=303)
+#     return redirect(checkout_session.url, code=303)
 
 @app.route("/logout", methods=["GET"])
 def logout():

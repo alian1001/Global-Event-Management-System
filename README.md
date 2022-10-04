@@ -61,6 +61,7 @@ python3 unit_tests.py
 py unit_tests.py
 ```
 
+
 ## Add the Stripe secret key to your environment variables
 
 ### MacOS/Linux
@@ -72,6 +73,7 @@ export STRIPE_SECRET="<Your Stripe Secret Key Here>"
 ### Windows (Powershell)
 
 ```
+
 $env:STRIPE_SECRET="<Your Stripe Secret Key Here>"
 ```
 

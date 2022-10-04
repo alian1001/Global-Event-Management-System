@@ -2,6 +2,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
+
     STRIPE_SECRET = os.environ.get('STRIPE_SECRET') or 'stripe_secret'
     
     #set the email system
@@ -20,3 +21,4 @@ class Config(object):
     @staticmethod
     def init_app(app):
         pass
+
