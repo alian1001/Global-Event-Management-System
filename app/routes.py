@@ -134,7 +134,7 @@ def checkinAndPay():
         cursor.execute("SELECT * FROM 'Event' WHERE eventID = (?)", (eventID,))
         event = cursor.fetchone()
 
-        product = stripe.Product.retrieve(event[8])
+        product = stripe.Product.retrieve(event[8], expand=["default_price"])
 
         if form.validate_on_submit():
             firstname = form.firstname.data
@@ -150,7 +150,7 @@ def checkinAndPay():
                     line_items=[
                         {
                             # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                            'price': product.default_price,
+                            'price': product.default_price.id,
                             'quantity': guests+1,
                         },
                     ],
@@ -169,8 +169,11 @@ def checkinAndPay():
             conn.commit()
 
             return redirect(checkout_session.url, code=303)
+        unit_price = round(product.default_price.unit_amount/100,2)
+        unit_price = int(unit_price) if unit_price.is_integer() else unit_price # Remove .00 unless required
+        price = f"${unit_price} per person"
     
-        return render_template('checkinAndPay.html', title = 'Check In & Pay', form=form, event=event)
+        return render_template('checkinAndPay.html', title = 'Check In & Pay', form=form, event=event, price=price)
 
 @app.route('/event', methods = ['GET', 'POST'])
 def create_event():
