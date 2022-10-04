@@ -51,11 +51,20 @@ venv\Scripts\activate
 ```
 pip install -r requirements.txt
 ```
+## (Optionally) you can run our unit tests (MacOS/Linux)
+```
+python3 unit_tests.py
+```
+
+## (Optionally) you can run our unit tests (Windows)
+```
+py unit_tests.py
+```
 
 
 ## Add the Stripe secret key to your environment variables
 
-### MacOs/Linux
+### MacOS/Linux
 
 ```
 export STRIPE_SECRET="<Your Stripe Secret Key Here>"

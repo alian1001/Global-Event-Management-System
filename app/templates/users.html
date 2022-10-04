@@ -2,22 +2,28 @@
 
 {% block content %}
 
+<style>
+  h1{
+    color:rgb(0, 0, 0);
+  }
+</style>
+
 <body>
     
     
-    <h1 id="demo"></h1>
+    <h1 id="greetings"></h1>
     
     <script>
     const time = new Date().getHours();
     let greeting;
     if (time < 10) {
-      greeting = "Good morning {User}, How are you today?";
+      greeting = "Good morning {{User}}, How are you today?";
     } else if (time < 20) {
-      greeting = "Good day {User}, How are you today?";
+      greeting = "Good day {{User}}, How are you today?";
     } else {
-      greeting = "Good evening {User}, How are you today?";
+      greeting = "Good evening {{User}}, How are you today?";
     }
-    document.getElementById("demo").innerHTML = greeting;
+    document.getElementById("greetings").innerHTML = greeting;
     </script>
     
     </body>

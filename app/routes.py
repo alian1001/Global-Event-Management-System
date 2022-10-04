@@ -1,6 +1,6 @@
 from app import app
 from app.forms import checkinForm, checkinAndPayForm, eventForm
-from flask import Flask, render_template, redirect, url_for, request, session,current_app,jsonify
+from flask import Flask, render_template, redirect, url_for, request, session,current_app,jsonify, flash
 from werkzeug.urls import url_parse
 from sqlalchemy import func, extract
 from mapper import user_db, base_db
@@ -66,9 +66,36 @@ def currentevent():
 	
     return render_template('currentevent.html', title='Current Events', status=status,  events=cursor.fetchall(), username = session.get('username'))
 
+
+
+@app.route('/clientevent', methods=['GET'])
+def clientEvent():
+    if session1==0:
+        session.clear()
+    status = False
+    print(session.get('username'),'username')
+    if session.get('login')=='OK' and  session.get('username'):
+        status = True
+        
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM 'Event'")
+	
+    return render_template('currenteventsclient.html', title='Current Events', status=status,  events=cursor.fetchall(), username = session.get('username'))
+
+
+
+
+
 @app.route('/users', methods=['GET'])
 def users():
-    return render_template('users.html', title='Users')
+    if session1==0:
+        session.clear()
+    status = False
+    print(session.get('username'),'username')
+    if session.get('login')=='OK' and  session.get('username'):
+        status = True
+    return render_template('users.html', title='Users', status=status, User = session.get('username'))
 
 @app.route('/checkin', methods = ['GET', 'POST'])
 def checkin():
@@ -79,9 +106,14 @@ def checkin():
         email = form.email.data
         phone = form.phone.data
         diet = form.diet.data
-        guests = form.guests.data
 
-        user_db.insert_new_checkin(firstname, lastname, email, phone, diet, guests)
+        sql = ''' INSERT INTO Guest(eventID, firstName, lastName, email, mobileNumber, dietaryReq)
+                       VALUES(?,?,?,?,?,?) '''
+        conn = sqlite3.connect('db.sqlite3')
+        cursor = conn.cursor()
+        cursor.execute(sql, ('1', firstname, lastname, email, phone, diet) )
+        conn.commit()
+        flash('Registered Successfully! Check your email for confirmation')
         return redirect(url_for('home'))
     
     return render_template('checkin.html', title = 'Check In', form=form)
@@ -173,10 +205,14 @@ def create_event():
         cursor.execute(sql, (name, host, date, start, end, location, product.id) )
         conn.commit()
 
-        return redirect(url_for('home'))
-
-
-    return render_template('event.html', title = 'Create Event', form=form)
+        return redirect(url_for('currentevent'))
+    if session1==0:
+        session.clear()
+    status = False
+    print(session.get('username'),'username')
+    if session.get('login')=='OK' and  session.get('username'):
+        status = True
+    return render_template('event.html', title='Create Event', status=status, form=form, username = session.get('username'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -207,7 +243,7 @@ def login():
                 if username == 'admin':
                     return redirect(url_for('admin'))
                 else:
-                    return redirect(url_for('home'))
+                    return redirect(url_for('users'))
             else:
                 return u'Incorrect password.'
         else:
@@ -283,4 +319,6 @@ def logout():
     # clear session
     session.clear()
     status = False
+    global session1
+    session1 = 0
     return  render_template('home.html', title='Home', status=status)

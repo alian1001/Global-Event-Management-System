@@ -12,7 +12,7 @@
      <link rel="preconnect" href="https://fonts.gstatic.com">
      <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
      <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway"> 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">  
      
     <!--JS-->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -20,18 +20,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
     <title>G.E.M.S</title>
+
 </head>
 
 <style>
-      body {
-      background-image: url("static/assets/security2.jpg");
-      background-blend-mode: color;
-    }
-</style>
+  /* Full height image header */
+  .bgimg-1 {
+    background-position: center;
+    background-size: cover;
+    background-image: url("static/assets/maindj.jpg");
+    min-height: 100%;
+  }
+  
+  .w3-bar .w3-button {
+    padding: 16px;
+  }
+  </style>
 
 <header>
 
-     <nav class="navbar navbar-expand-lg navbar-dark w3-animate-opacity" style="background-color: rgb(42, 52, 134);">
+     <nav class="navbar navbar-expand-lg navbar-dark w3-animate-opacity" style="background-color: rgb(130, 60, 131);opacity: 60%;">
 
       <a class="navbar-brand" href="{{ url_for('index') }}">G.E.M.S</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,22 +49,7 @@
         <ul class="navbar-nav">
 
           <li class="nav-item">
-            <!--<a class="nav-link" href="{{ url_for('currentevent') }}">Current Events</a>-->
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Admin
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              {%if status%}
-              <a class="dropdown-item" href="{{ url_for('create_event') }}">Create Event</a>
-              <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a> 
-              <a class="dropdown-item" href="{{ url_for('users') }}">Account</a>             
-              {%else%}
-              <a class="dropdown-item" href="{{ url_for('login') }}">Login</a>
-              {%endif%}
-              
-            </div>
+            <a class="nav-link" href="{{ url_for('clientEvent') }}">Current Events</a>
           </li>
         </ul>
       </div>
@@ -66,6 +59,7 @@
 </header>
 
 <body>
+  
   <div class="container">
         {% block content %}
         {% endblock %}
@@ -75,7 +69,7 @@
 
 
 <footer class="bg-light text-center text-lg-start fixed-bottom w3-animate-opacity" id="mainfooter">
-  <div class="text-center p-3" style="background-color: rgb(42, 52, 134);">
+  <div class="text-center p-3" style="background-color: rgb(130, 60, 131);opacity: 60%;">
     <a class="text-light" href="{{ url_for('index') }}">© The University Of Western Australia: CITS3200 Team 9 Project</a>
   </div>
 </footer>
