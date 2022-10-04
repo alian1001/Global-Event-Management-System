@@ -2,14 +2,24 @@
 
 {% block content %}
 
+<style>
+	.email{
+		background-color:rgb(255, 255, 255);
+	}
+	.password{
+		background-color:rgb(255, 255, 255);
+	}
+</style>
+
 <title>Login</title>
 	<link rel="stylesheet" type="text/css" href="../static/css/register-login.css">
 	<link rel="icon" href="../static/images/uwa.png" type="image/x-icon"/>
 
-<div class="cent-box">
+<div class="cent-box w3-animate-opacity">
 	<div class="cent-box-header">
 		<h1 class="main-title hide">Group 9</h1>
-		<h3><a href="{{ url_for('index') }}">G.E.M.S</a></h3>
+		<h3><a href="{{ url_for('index') }}">G.E.M.S System Login</a></h3>
+		<h6>Unauthorised Access Strictly Prohibited</h6>
 	</div>
 
 	<div class="cont-main clearfix">

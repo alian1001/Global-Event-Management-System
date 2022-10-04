@@ -2,10 +2,16 @@
 
 {% block content %}
 
+<style>
+  h1{
+    color:rgb(0, 0, 0);
+  }
+</style>
+
 <body>
     
     
-    <h1 id="demo"></h1>
+    <h1 id="greetings"></h1>
     
     <script>
     const time = new Date().getHours();
@@ -17,7 +23,7 @@
     } else {
       greeting = "Good evening {{User}}, How are you today?";
     }
-    document.getElementById("demo").innerHTML = greeting;
+    document.getElementById("greetings").innerHTML = greeting;
     </script>
     
     </body>
