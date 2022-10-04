@@ -179,7 +179,6 @@ def checkinAndPay():
 def create_event():
     form = eventForm()
     if form.validate_on_submit():
-
         name = form.event_name.data
         host = form.event_host.data
         date = form.event_date.data
@@ -188,21 +187,24 @@ def create_event():
         location = form.event_location.data
         ticketprice = form.ticket_price.data*100 # Convert from dollars to cents
 
-        product = stripe.Product.create(
-            name=f"{name} Ticket",
-            shippable=False,
-            description=f"{host} - {date} {start} to {end}, {location}.",
-            default_price_data={"currency":"aud",
-                                "unit_amount_decimal":ticketprice
-            }
-        )
-        
+        if ticketprice:
+            product = stripe.Product.create(
+                name=f"{name} Ticket",
+                shippable=False,
+                description=f"{host} - {date} {start} to {end}, {location}.",
+                default_price_data={"currency":"aud",
+                                    "unit_amount_decimal":ticketprice
+                }
+            )
+            productID = product.id
+        else:
+            productID = None
 
         sql = ''' INSERT INTO Event(eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID)
                        VALUES(?,?,?,?,?,?,?) '''
         conn = sqlite3.connect('db.sqlite3')
         cursor = conn.cursor()
-        cursor.execute(sql, (name, host, date, start, end, location, product.id) )
+        cursor.execute(sql, (name, host, date, start, end, location, productID) )
         conn.commit()
 
         return redirect(url_for('currentevent'))
