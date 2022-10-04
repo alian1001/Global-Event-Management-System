@@ -87,7 +87,13 @@ def clientEvent():
 
 @app.route('/users', methods=['GET'])
 def users():
-    return render_template('users.html', title='Users')
+    if session1==0:
+        session.clear()
+    status = False
+    print(session.get('username'),'username')
+    if session.get('login')=='OK' and  session.get('username'):
+        status = True
+    return render_template('users.html', title='Users', status=status, User = session.get('username'))
 
 @app.route('/checkin', methods = ['GET', 'POST'])
 def checkin():
@@ -159,8 +165,14 @@ def create_event():
         conn.commit()
 
         return redirect(url_for('currentevent'))
+    if session1==0:
+        session.clear()
+    status = False
+    print(session.get('username'),'username')
+    if session.get('login')=='OK' and  session.get('username'):
+        status = True
+    return render_template('event.html', title='Create Event', status=status, form=form, username = session.get('username'))
 
-    return render_template('event.html', title = 'Create Event', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -267,4 +279,6 @@ def logout():
     # clear session
     session.clear()
     status = False
+    global session1
+    session1 = 0
     return  render_template('home.html', title='Home', status=status)

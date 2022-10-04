@@ -11,11 +11,11 @@
     const time = new Date().getHours();
     let greeting;
     if (time < 10) {
-      greeting = "Good morning {User}, How are you today?";
+      greeting = "Good morning {{User}}, How are you today?";
     } else if (time < 20) {
-      greeting = "Good day {User}, How are you today?";
+      greeting = "Good day {{User}}, How are you today?";
     } else {
-      greeting = "Good evening {User}, How are you today?";
+      greeting = "Good evening {{User}}, How are you today?";
     }
     document.getElementById("demo").innerHTML = greeting;
     </script>
