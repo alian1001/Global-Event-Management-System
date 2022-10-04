@@ -1,4 +1,4 @@
-const canvas = document.getElementById("badge_result");
+const canvas = document.getElementById("badgegen");
 const preview = document.getElementById("submit");
 preview.addEventListener("click", preview_badge);
 
@@ -6,34 +6,33 @@ canvas.height = canvas.width / 1.616;
 const ctx = canvas.getContext("2d");
 ctx.font = "20px Helvetica";
 
-// const image = document.getElementById("file_image");
+const image = document.getElementById("file_image");
 const logo = document.getElementById("logo");
 
 function preview_badge(){
-    let inFirstname = document.getElementById("firstname").value;
-    let inLastname = document.getElementById("lastname").value;
-    let inEmail = document.getElementById("email").value;
 
-    const firstname_badge = document.getElementById("firstname");
-    const lastname_badge = document.getElementById("lastname");
-    const email_badge = document.getElementById("email");
-    const image = document.getElementById("file_image");
+    let fullname = document.getElementById("firstname").value + " " + document.getElementById("lastname").value;
+    let email = document.getElementById("email").value;
+    let diet = "Dietary Req: " + document.getElementById("diet").value;
+    let file_image = document.getElementById("file_image").value;
 
-    firstname_badge.innerHTML = inFirstname;
-    lastname_badge.innerHTML = inLastname;
-    email_badge.innerHTML = inEmail;
-
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
     ctx.fillStyle = "#159";
     ctx.rect(0, 0, 300, 56);
     ctx.fill();
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "white";
     ctx.fillText("Badge for Event", 10, 25);
+    
     ctx.font = "16px Arial";
     ctx.fillText("Guest", 15, 45);
-    ctx.fillStyle = "#000";
-    ctx.fillText(firstname_badge.innerHTML, 110, 90);
-    ctx.fillText(lastname_badge.innerHTML, 110, 115);
-    ctx.fillText(email_badge.innerHTML, 110, 140);
+    ctx.fillText("G.E.M.S", 230, 35);
+
+    ctx.fillStyle = "black";
+    ctx.fillText(fullname, 110, 90);
+    ctx.fillText(email, 110, 115);
+    ctx.fillText(diet, 110, 140);
     ctx.drawImage(image, 10, 65, 80, 110);
 }
 
