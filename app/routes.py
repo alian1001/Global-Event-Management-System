@@ -142,7 +142,7 @@ def checkinAndPay():
             email = form.email.data
             phone = form.phone.data
             diet = form.diet.data
-            guests = form.guests.data
+            guests = int(form.guests.data)
 
             try:
 
@@ -151,27 +151,24 @@ def checkinAndPay():
                         {
                             # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
                             'price': product.default_price,
-                            'quantity': 1,
+                            'quantity': guests+1,
                         },
                     ],
                     mode='payment',
-                    success_url=request.base_url + '/success',
-                    cancel_url=request.base_url + '/cancel',
+                    success_url=request.base_url,
+                    cancel_url=request.base_url,
+                    customer_email=email
                 )
             except Exception as e:
                 return str(e)
+            
+            sql = ''' INSERT INTO Guest(firstName, lastName, email, mobileNumber, dietaryReq, eventID)
+                    VALUES(?,?,?,?,?,?) '''
+
+            cursor.execute(sql, (firstname,lastname,email,phone,diet,eventID) )
+            conn.commit()
 
             return redirect(checkout_session.url, code=303)
-
-            # sql = ''' INSERT INTO Guest(firstName, lastName, email, mobileNumber, dietaryReq, eventID)
-            #         VALUES(?,?,?,?,?,?) '''
-
-            # with sqlite3.connect('db.sqlite3') as conn:
-            #     cursor = conn.cursor()
-            #     cursor.execute(sql, (firstname,lastname,email,phone,diet,) )
-            #     conn.commit()
-
-            return redirect(url_for('home'))
     
         return render_template('checkinAndPay.html', title = 'Check In & Pay', form=form, event=event)
 
