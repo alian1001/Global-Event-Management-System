@@ -1,7 +1,8 @@
 # from app.models import Attendee
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, TextAreaField, StringField, IntegerField, DecimalField, SelectField, PasswordField, BooleanField, DateField, TimeField, validators
+from wtforms import SubmitField, TextAreaField, StringField, IntegerField, DecimalField, SelectField, PasswordField, BooleanField, DateField, TimeField, validators, FileField
 from wtforms.validators import DataRequired, Email, ValidationError, EqualTo, Length, NumberRange
+from flask_wtf.file import FileAllowed
 
 class checkinForm(FlaskForm):
     firstname = StringField('Firstname:',  validators=[DataRequired()])
@@ -10,7 +11,7 @@ class checkinForm(FlaskForm):
     phone = StringField('Mobile Phone:', validators=[DataRequired(), Length(min=10, max=10)])
     diet = StringField('Dietary Requirements:',  validators=[DataRequired()])
     guests = IntegerField(u'Additional Guests:', validators=[NumberRange(min=0)])
-    
+    file_image = FileField('Upload Image for Badge:', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     submit = SubmitField('Check In')
 	
 class checkinAndPayForm(FlaskForm):
