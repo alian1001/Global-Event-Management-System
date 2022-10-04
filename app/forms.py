@@ -11,7 +11,7 @@ class checkinForm(FlaskForm):
     phone = StringField('Mobile Phone:', validators=[DataRequired(), Length(min=10, max=10)])
     diet = StringField('Dietary Requirements:',  validators=[DataRequired()])
     guests = IntegerField(u'Additional Guests:', validators=[NumberRange(min=0)])
-    file_image = FileField('Upload Image for Badge:', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
+    # file_image = FileField('Upload Image for Badge:', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     submit = SubmitField('Check In')
 	
 class checkinAndPayForm(FlaskForm):
