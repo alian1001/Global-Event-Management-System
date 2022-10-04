@@ -1,6 +1,6 @@
 from app import app
 from app.forms import checkinForm, checkinAndPayForm, eventForm
-from flask import Flask, render_template, redirect, url_for, request, session,current_app,jsonify
+from flask import Flask, render_template, redirect, url_for, request, session,current_app,jsonify, flash
 from werkzeug.urls import url_parse
 from sqlalchemy import func, extract
 from mapper import user_db, base_db
@@ -111,6 +111,7 @@ def checkin():
         cursor = conn.cursor()
         cursor.execute(sql, ('1', firstname, lastname, email, phone, diet) )
         conn.commit()
+        flash('Registered Successfully! Check your email for confirmation')
         return redirect(url_for('home'))
     
     return render_template('checkin.html', title = 'Check In', form=form)
