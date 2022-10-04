@@ -64,6 +64,27 @@ def currentevent():
 	
     return render_template('currentevent.html', title='Current Events', status=status,  events=cursor.fetchall(), username = session.get('username'))
 
+
+
+@app.route('/clientevent', methods=['GET'])
+def clientEvent():
+    if session1==0:
+        session.clear()
+    status = False
+    print(session.get('username'),'username')
+    if session.get('login')=='OK' and  session.get('username'):
+        status = True
+        
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM 'Event'")
+	
+    return render_template('currenteventsclient.html', title='Current Events', status=status,  events=cursor.fetchall(), username = session.get('username'))
+
+
+
+
+
 @app.route('/users', methods=['GET'])
 def users():
     return render_template('users.html', title='Users')

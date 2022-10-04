@@ -16,7 +16,8 @@
   style="width:100%">
 </section>
 
-<h1><a href="{{ url_for('currentevent') }}">Current Events</a></h1>
+<h1><a href="{{ url_for('clientEvent') }}">Current Events</a></h1>
+<h1><a href="{{ url_for('login') }}">Admin Login</a></h1>
 
 
 <script>
@@ -35,6 +36,7 @@ function carousel() {
   x[myIndex-1].style.display = "block";
   setTimeout(carousel, 3000);
 }
+
 </script>
 
 </body>

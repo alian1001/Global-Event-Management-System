@@ -1,4 +1,4 @@
-{% extends "base.html"%} 
+{% extends "baseclient.html"%} 
 
 {% block content %}
 
@@ -23,6 +23,7 @@
 		<td>{{ event[4] }}</td>
 		<td>{{ event[5] }}</td>
 		<td>Add Price to DB</td>
+		<td bgcolor="ffffff"><a href="{{ url_for('checkin') }}">Check In</a></td>
       </tr>
     </tbody>
 	{% endfor %}
