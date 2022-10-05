@@ -110,9 +110,9 @@ def checkin():
         conn = sqlite3.connect('db.sqlite3')
         cursor = conn.cursor()
         cursor.execute(sql, ('1', firstname, lastname, email, phone, diet) )
-        # conn.commit()
+        conn.commit()
         flash('Registered Successfully! Check your email for confirmation')
-        # return redirect(url_for('home'))
+        
     
     return render_template('checkin.html', title = 'Check In', form=form)
 
