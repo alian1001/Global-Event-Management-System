@@ -11,6 +11,7 @@ from flask import (
 )
 
 from mapper import user_db, base_db
+from mapper import sqlite_mapper as db
 from threading import Thread
 from flask_mail import Message, Mail
 import random
@@ -21,6 +22,8 @@ mail = Mail()
 mail.init_app(app)
 
 stripe.api_key = app.config["STRIPE_SECRET"]
+db.path = "db.sqlite3"
+
 session1 = 0
 
 
@@ -77,15 +80,13 @@ def currentevent():
     if session.get("login") == "OK" and session.get("username"):
         status = True
 
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM 'Event'")
+    events = db.get_events()
 
     return render_template(
         "currentevent.html",
         title="Current Events",
         status=status,
-        events=cursor.fetchall(),
+        events=events,
         username=session.get("username"),
     )
 
@@ -99,15 +100,13 @@ def clientEvent():
     if session.get("login") == "OK" and session.get("username"):
         status = True
 
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM 'Event'")
+    events = db.get_events()
 
     return render_template(
         "currenteventsclient.html",
         title="Current Events",
         status=status,
-        events=cursor.fetchall(),
+        events=events,
         username=session.get("username"),
     )
 
@@ -128,6 +127,12 @@ def users():
 @app.route("/checkin", methods=["GET", "POST"])
 def checkin():
     form = checkinForm()
+
+    if "eventID" not in request.args:
+        return redirect(url_for("bookingsuccess"), code=303)
+
+    eventID = request.args["eventID"]
+
     if form.validate_on_submit():
         firstname = form.firstname.data
         lastname = form.lastname.data
@@ -135,12 +140,8 @@ def checkin():
         phone = form.phone.data
         diet = form.diet.data
 
-        sql = """ INSERT INTO Guest(eventID, firstName, lastName, email, mobileNumber, dietaryReq)
-                       VALUES(?,?,?,?,?,?) """
-        conn = sqlite3.connect("db.sqlite3")
-        cursor = conn.cursor()
-        cursor.execute(sql, ("1", firstname, lastname, email, phone, diet))
-        conn.commit()
+        db.add_guest(firstname, lastname, email, phone, diet, eventID)
+
         flash("Registered Successfully! Check your email for confirmation")
         return redirect(url_for("bookingsuccess"))
 
@@ -157,60 +158,54 @@ def checkinAndPay():
 
     eventID = request.args["eventID"]
 
-    with sqlite3.connect("db.sqlite3") as conn:
-        cursor = conn.cursor()
-        conn = sqlite3.connect("db.sqlite3")
-        cursor.execute("SELECT * FROM 'Event' WHERE eventID = (?)", (eventID,))
-        event = cursor.fetchone()
+    event = db.get_event_by_id(eventID)
 
-        product = stripe.Product.retrieve(event[8], expand=["default_price"])
+    product = stripe.Product.retrieve(
+        event["stripeProductID"], expand=["default_price"]
+    )
 
-        if form.validate_on_submit():
-            firstname = form.firstname.data
-            lastname = form.lastname.data
-            email = form.email.data
-            phone = form.phone.data
-            diet = form.diet.data
-            guests = int(form.guests.data)
+    if form.validate_on_submit():
+        firstname = form.firstname.data
+        lastname = form.lastname.data
+        email = form.email.data
+        phone = form.phone.data
+        diet = form.diet.data
+        guests = int(form.guests.data)
 
-            try:
+        try:
 
-                checkout_session = stripe.checkout.Session.create(
-                    line_items=[
-                        {
-                            # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                            "price": product.default_price.id,
-                            "quantity": guests + 1,
-                        },
-                    ],
-                    mode="payment",
-                    success_url=url_for("bookingsuccess", _external=True),
-                    cancel_url=url_for("clientEvent", _external=True),
-                    customer_email=email,
-                )
-            except Exception as e:
-                return str(e)
+            checkout_session = stripe.checkout.Session.create(
+                line_items=[
+                    {
+                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                        "price": product.default_price.id,
+                        "quantity": guests + 1,
+                    },
+                ],
+                mode="payment",
+                success_url=url_for("bookingsuccess", _external=True),
+                cancel_url=url_for("clientEvent", _external=True),
+                customer_email=email,
+            )
+        except Exception as e:
+            return str(e)
 
-            sql = """ INSERT INTO Guest(firstName, lastName, email, mobileNumber, dietaryReq, eventID)
-                    VALUES(?,?,?,?,?,?) """
+        db.add_guest(firstname, lastname, email, phone, diet, eventID)
 
-            cursor.execute(sql, (firstname, lastname, email, phone, diet, eventID))
-            conn.commit()
+        return redirect(checkout_session.url, code=303)
+    unit_price = round(product.default_price.unit_amount / 100, 2)
+    unit_price = (
+        int(unit_price) if unit_price.is_integer() else unit_price
+    )  # Remove .00 unless required
+    price = f"${unit_price} per person"
 
-            return redirect(checkout_session.url, code=303)
-        unit_price = round(product.default_price.unit_amount / 100, 2)
-        unit_price = (
-            int(unit_price) if unit_price.is_integer() else unit_price
-        )  # Remove .00 unless required
-        price = f"${unit_price} per person"
-
-        return render_template(
-            "checkinAndPay.html",
-            title="Check In & Pay",
-            form=form,
-            event=event,
-            price=price,
-        )
+    return render_template(
+        "checkinAndPay.html",
+        title="Check In & Pay",
+        form=form,
+        event=event,
+        price=price,
+    )
 
 
 @app.route("/event", methods=["GET", "POST"])
@@ -223,16 +218,16 @@ def create_event():
         start = str(form.event_time_start.data)
         end = str(form.event_time_end.data)
         location = form.event_location.data
-        ticketprice = form.ticket_price.data
+        ticketPrice = form.ticket_price.data
 
-        if ticketprice:
+        if ticketPrice:
             product = stripe.Product.create(
                 name=f"{name} Ticket",
                 shippable=False,
                 description=f"{host} - {date} {start} to {end}, {location}.",
                 default_price_data={
                     "currency": "aud",
-                    "unit_amount_decimal": ticketprice
+                    "unit_amount_decimal": ticketPrice
                     * 100,  # Convert from dollars to cents
                 },
             )
@@ -240,14 +235,7 @@ def create_event():
         else:
             productID = None
 
-        sql = """ INSERT INTO Event(eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID, eventPrice)
-                       VALUES(?,?,?,?,?,?,?) """
-        conn = sqlite3.connect("db.sqlite3")
-        cursor = conn.cursor()
-        cursor.execute(
-            sql, (name, host, date, start, end, location, productID, ticketprice)
-        )
-        conn.commit()
+        db.add_event(name, host, date, start, end, location, productID, ticketPrice)
 
         return redirect(url_for("currentevent"))
     if session1 == 0:
