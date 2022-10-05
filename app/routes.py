@@ -66,8 +66,6 @@ def currentevent():
 	
     return render_template('currentevent.html', title='Current Events', status=status,  events=cursor.fetchall(), username = session.get('username'))
 
-
-
 @app.route('/clientevent', methods=['GET'])
 def clientEvent():
     if session1==0:
@@ -82,10 +80,6 @@ def clientEvent():
     cursor.execute("SELECT * FROM 'Event'")
 	
     return render_template('currenteventsclient.html', title='Current Events', status=status,  events=cursor.fetchall(), username = session.get('username'))
-
-
-
-
 
 @app.route('/users', methods=['GET'])
 def users():
@@ -185,7 +179,7 @@ def create_event():
         start = str(form.event_time_start.data)
         end = str(form.event_time_end.data)
         location = form.event_location.data
-        ticketprice = form.ticket_price.data*100 # Convert from dollars to cents
+        ticketprice = form.ticket_price.data
 
         if ticketprice:
             product = stripe.Product.create(
@@ -193,18 +187,18 @@ def create_event():
                 shippable=False,
                 description=f"{host} - {date} {start} to {end}, {location}.",
                 default_price_data={"currency":"aud",
-                                    "unit_amount_decimal":ticketprice
+                                    "unit_amount_decimal":ticketprice*100 # Convert from dollars to cents
                 }
             )
             productID = product.id
         else:
             productID = None
 
-        sql = ''' INSERT INTO Event(eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID)
+        sql = ''' INSERT INTO Event(eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID, eventPrice)
                        VALUES(?,?,?,?,?,?,?) '''
         conn = sqlite3.connect('db.sqlite3')
         cursor = conn.cursor()
-        cursor.execute(sql, (name, host, date, start, end, location, productID) )
+        cursor.execute(sql, (name, host, date, start, end, location, productID, ticketprice) )
         conn.commit()
 
         return redirect(url_for('currentevent'))
@@ -215,7 +209,6 @@ def create_event():
     if session.get('login')=='OK' and  session.get('username'):
         status = True
     return render_template('event.html', title='Create Event', status=status, form=form, username = session.get('username'))
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -293,27 +286,6 @@ def forgetpassword():
                 return render_template('home.html', title='Home')
 
         return render_template('forgetpassword.html')
-
-### Stripe Implementation
-# @app.route('/create-checkout-session', methods=['POST'])
-# def create_checkout_session():
-#     try:
-#         checkout_session = stripe.checkout.Session.create(
-#             line_items=[
-#                 {
-#                     # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-#                     'price': '{{PRICE_ID}}',
-#                     'quantity': 1,
-#                 },
-#             ],
-#             mode='payment',
-#             success_url=request.base_url + '/success',
-#             cancel_url=request.base_url + '/cancel',
-#         )
-#     except Exception as e:
-#         return str(e)
-
-#     return redirect(checkout_session.url, code=303)
 
 @app.route("/logout", methods=["GET"])
 def logout():
