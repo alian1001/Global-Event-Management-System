@@ -36,14 +36,14 @@
   {% for event in events %}
   <tbody>
     <tr>
-      <td>{{ event[1] }}</td>
-      <td>{{ event[2] }}</td>
-      <td>{{ event[3] }}</td>
-      <td>{{ event[4] }}</td>
-      <td>{{ event[5] }}</td>
-      <td>${{ event[9] }}</td>
+      <td>{{ event["eventName"] }}</td>
+      <td>{{ event["eventHost"] }}</td>
+      <td>{{ event["eventDate"] }}</td>
+      <td>{{ event["startTime"] }}</td>
+      <td>{{ event["endTime"] }}</td>
+      <td>${{ event["eventPrice"]/100 }}</td>
       <td bgcolor="ffffff">
-        {% if event[8] %}
+        {% if event["stripeProductID"] %}
         <a href="{{ url_for('checkinAndPay', eventID=event[0]) }}">Check In</a>
         {% else %}
         <a href="{{ url_for('checkin', eventID=event[0]) }}">Check In</a>

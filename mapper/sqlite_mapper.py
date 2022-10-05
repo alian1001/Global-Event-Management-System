@@ -18,7 +18,7 @@ def new_uuid(table=None, column=None) -> str:
                     break
                 key = uuid.uuid4().hex[:8]
 
-    return key
+    return str(key)
 
 
 def get_events() -> list:
@@ -70,13 +70,13 @@ def add_event(
     start,
     end,
     location,
-    productID=None,
+    productID="",
     ticketPrice=0,
 ) -> None:
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO Event(eventID, eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID, eventPrice) VALUES(?,?,?,?,?,?,?,?)",
+            "INSERT INTO Event(eventID, eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID, eventPrice) VALUES(?,?,?,?,?,?,?,?,?)",
             (
                 new_uuid("event", "eventID"),
                 name,

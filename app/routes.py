@@ -124,14 +124,14 @@ def users():
     )
 
 
-@app.route("/checkin", methods=["GET", "POST"])
-def checkin():
+@app.route("/checkin/<eventID>", methods=["GET", "POST"])
+def checkin(eventID):
     form = checkinForm()
 
-    if "eventID" not in request.args:
-        return redirect(url_for("bookingsuccess"), code=303)
+    # if eventID is None:
+    #     return redirect(url_for("clientevent"), code=303)
 
-    eventID = request.args["eventID"]
+    # eventID = request.args["eventID"]
 
     if form.validate_on_submit():
         firstname = form.firstname.data
@@ -148,15 +148,13 @@ def checkin():
     return render_template("checkin.html", title="Check In", form=form)
 
 
-@app.route("/checkinAndPay", methods=["GET", "POST"])
-def checkinAndPay():
+@app.route("/checkinAndPay/<eventID>", methods=["GET", "POST"])
+def checkinAndPay(eventID):
     form = checkinAndPayForm()
 
     # Return user to events page if no event specified
-    if "eventID" not in request.args:
-        return redirect(url_for("bookingsuccess"), code=303)
-
-    eventID = request.args["eventID"]
+    # if eventID is None:
+    #     return redirect(url_for("clientevent"), code=303)
 
     event = db.get_event_by_id(eventID)
 
@@ -218,7 +216,9 @@ def create_event():
         start = str(form.event_time_start.data)
         end = str(form.event_time_end.data)
         location = form.event_location.data
-        ticketPrice = form.ticket_price.data
+        ticketPrice = (
+            float(form.ticket_price.data) * 100
+        )  # Convert from dollars to cents
 
         if ticketPrice:
             product = stripe.Product.create(
@@ -227,13 +227,12 @@ def create_event():
                 description=f"{host} - {date} {start} to {end}, {location}.",
                 default_price_data={
                     "currency": "aud",
-                    "unit_amount_decimal": ticketPrice
-                    * 100,  # Convert from dollars to cents
+                    "unit_amount_decimal": ticketPrice,
                 },
             )
-            productID = product.id
+            productID = str(product.id)
         else:
-            productID = None
+            productID = ""
 
         db.add_event(name, host, date, start, end, location, productID, ticketPrice)
 
