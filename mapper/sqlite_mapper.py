@@ -9,12 +9,15 @@ def new_uuid(table=None, column=None) -> str:
     if table:
         # check for collisions
         with sqlite3.connect(path) as conn:
-            conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            while cursor.execute(
-                "SELECT * FROM (?) WHERE (?) = (?)", (table, column, key)
-            ).fetchone():
+            while True:
+                match = cursor.execute(
+                    f"SELECT * FROM {table} WHERE {column} = (?)", (key,)
+                ).fetchone()
+                if match is None:
+                    break
                 key = uuid.uuid4().hex[:8]
+
     return key
 
 
