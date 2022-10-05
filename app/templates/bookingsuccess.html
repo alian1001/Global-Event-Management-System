@@ -1,0 +1,21 @@
+{% extends "baseclient.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block content %}
+
+
+<style>
+    body {
+      background-image: url("static/assets/wendystage.jpg");
+    }
+    
+    </style>
+
+    <!--Add checkmark.png image -->
+    <div class="center" style="text-align: center;">
+    <img src="static/assets/checkmark.png" alt="checkmark" style="width: 100px; height: 100px;">
+
+    <h2 class="w3-jumbo w3-animate-top" style="color:rgb(255, 255, 255);">Booking Successful!</h2>
+    <h3 class=" w3-animate-top" style="color:rgb(255, 255, 255);">Check your email for confirmation</h3>
+        </div>
+{% endblock %}

@@ -1,14 +1,24 @@
-{% extends "base.html" %}
+{% extends "baseclient.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block content %}
-<div class="container">
-    <h1>Check In & Pay</h1>
-    <div class="row">
-        <div class="form1">
-            {{ wtf.quick_form(form) }}
+
+
+<style>
+    /*change background image to dj.jpg*/
+    body {
+      background-image: url("static/assets/wedding.jpg");
+    }
+    
+    </style>
+
+<div class = "container w3-animate-top w3-animate-opacity">
+    <h2 class="w3-jumbo w3-animate-top" style="color:rgb(218, 152, 254);">Check In & Pay</h2>
+    <h2 class="w3-jumbo w3-animate-top" style="color:rgb(218, 152, 254);">{{ price }}</h2>
+        <div class="row">
+            <div class="form1">
+                {{ wtf.quick_form(form) }}
+            </div>
         </div>
     </div>
-    <p>{{ price }}</p>
-</div>
 {% endblock %}

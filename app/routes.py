@@ -40,6 +40,11 @@ stripe.api_key = app.config["STRIPE_SECRET"]
 def index():
 
     return redirect(url_for('home'))
+
+@app.route('/bookingsuccess', methods=['GET'])
+def bookingsuccess():
+
+    return render_template('bookingsuccess.html')
     
 @app.route('/home',methods=['GET'])
 def home():
@@ -108,7 +113,7 @@ def checkin():
         cursor.execute(sql, ('1', firstname, lastname, email, phone, diet) )
         conn.commit()
         flash('Registered Successfully! Check your email for confirmation')
-        return redirect(url_for('home'))
+        return redirect(url_for('bookingsuccess'))
     
     return render_template('checkin.html', title = 'Check In', form=form)
 
@@ -118,7 +123,7 @@ def checkinAndPay():
 
     # Return user to events page if no event specified
     if "eventID" not in request.args:
-        return redirect(url_for('currentevent'), code=303)
+        return redirect(url_for('bookingsuccess'), code=303)
 
     eventID = request.args["eventID"]
 
@@ -149,8 +154,8 @@ def checkinAndPay():
                         },
                     ],
                     mode='payment',
-                    success_url=request.base_url,
-                    cancel_url=request.base_url,
+                    success_url=url_for('bookingsuccess', _external=True),
+                    cancel_url=url_for('clientEvent', _external=True),
                     customer_email=email
                 )
             except Exception as e:
