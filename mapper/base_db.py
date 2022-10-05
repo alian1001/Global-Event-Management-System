@@ -1,10 +1,8 @@
 from sqlalchemy import create_engine
 
 
-
-
 def get_conn():
-    engine = create_engine('sqlite:///db.sqlite3')
+    engine = create_engine("sqlite:///db.sqlite3")
     connection = engine.raw_connection()
     return connection
 
