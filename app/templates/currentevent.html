@@ -30,6 +30,9 @@
         <a href="{{ url_for('checkin', eventID=event[0]) }}">Check In</a>
         {% endif %}
       </td>
+      <td bgcolor="ffffff">
+        <a href="{{ url_for('bookings', eventID=event['eventID']) }}">View Bookings</a>
+      </td>
     </tr>
   </tbody>
   {% endfor %}

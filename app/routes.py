@@ -123,7 +123,6 @@ def users():
         "users.html", title="Users", status=status, User=session.get("username")
     )
 
-
 @app.route("/checkin/<eventID>", methods=["GET", "POST"])
 def checkin(eventID):
     form = checkinForm()
@@ -248,6 +247,25 @@ def create_event():
         title="Create Event",
         status=status,
         form=form,
+        username=session.get("username"),
+    )
+
+@app.route("/event/<eventID>", methods=["GET", "POST"])
+def bookings(eventID):
+    if session1 == 0:
+        session.clear()
+    status = False
+    print(session.get("username"), "username")
+    if session.get("login") == "OK" and session.get("username"):
+        status = True
+
+    guests = db.get_guests_by_event(eventID)
+    print(guests)
+
+    return render_template(
+        "bookings.html",
+        status=status,
+        guests=guests,
         username=session.get("username"),
     )
 
