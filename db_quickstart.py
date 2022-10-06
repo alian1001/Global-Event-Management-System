@@ -13,7 +13,7 @@ CREATE TABLE User (userName TEXT NOT NULL UNIQUE PRIMARY KEY, password TEXT NOT 
 
 INSERT INTO User(username,password) VALUES("root","root");
 INSERT INTO Event VALUES ("67a459b1","Public Art Exhibit","Jane Artist","2022-12-30","12:00:00","20:00:00","James Oval, UWA","","",0);
-INSERT INTO Event VALUES ("caef73db","Exclusive Music Event","David Musician","2022-12-29","19:00:00","21:00:00","Octagon Theatre, UWA","","prod_MYkBLqlc7Zdv7f",15);
+INSERT INTO Event VALUES ("caef73db","Exclusive Music Event","David Musician","2022-12-29","19:00:00","21:00:00","Octagon Theatre, UWA","","prod_MYkBLqlc7Zdv7f",1500);
 """
 
 
