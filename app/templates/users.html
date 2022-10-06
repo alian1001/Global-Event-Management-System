@@ -16,16 +16,47 @@
     <script>
     const time = new Date().getHours();
     let greeting;
-    if (time < 10) {
+    /*if (time < 10) {
       greeting = "Good morning {{User}}, How are you today?";
     } else if (time < 20) {
       greeting = "Good day {{User}}, How are you today?";
     } else {
       greeting = "Good evening {{User}}, How are you today?";
-    }
+    }*/
+	  greeting = "Your Events:"
     document.getElementById("greetings").innerHTML = greeting;
     </script>
     
-    </body>
+</body>
+
+<table class="table table-striped table-bordered table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Event Name</th>
+      <th scope="col">Event Host</th>
+      <th scope="col">Date</th>
+      <th scope="col">Start Time</th>
+      <th scope="col">End Time</th>
+      <th scope="col">Price per Ticket</th>
+    </tr>
+  </thead>
+
+  {% for event in events %}
+  <tbody>
+    <tr>
+      <td>{{ event["eventName"] }}</td>
+      <td>{{ event["eventHost"] }}</td>
+      <td>{{ event["eventDate"] }}</td>
+      <td>{{ event["startTime"] }}</td>
+      <td>{{ event["endTime"] }}</td>
+      <td>${{ event["eventPrice"]/100 }}</td>
+      <td bgcolor="ffffff">
+        <a href="{{ url_for('bookings', eventID=event['eventID']) }}">View Bookings</a>
+      </td>
+    </tr>
+  </tbody>
+  {% endfor %}
+
+</table>
 
 {% endblock %}

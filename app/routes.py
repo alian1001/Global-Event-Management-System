@@ -119,8 +119,16 @@ def users():
     print(session.get("username"), "username")
     if session.get("login") == "OK" and session.get("username"):
         status = True
+		
+    admin = session.get("username")
+    events = db.get_admin_events(admin)
+    
     return render_template(
-        "users.html", title="Users", status=status, User=session.get("username")
+        "users.html",
+        title="Users",
+        status=status,
+        events=events,
+        User=session.get("username")
     )
 
 @app.route("/checkin/<eventID>", methods=["GET", "POST"])
@@ -218,6 +226,7 @@ def create_event():
         ticketPrice = (
             float(form.ticket_price.data) * 100
         )  # Convert from dollars to cents
+        admin = session.get("username")
 
         if ticketPrice:
             product = stripe.Product.create(
@@ -233,7 +242,7 @@ def create_event():
         else:
             productID = ""
 
-        db.add_event(name, host, date, start, end, location, productID, ticketPrice)
+        db.add_event(name, host, date, start, end, location, productID, ticketPrice, admin)
 
         return redirect(url_for("currentevent"))
     if session1 == 0:

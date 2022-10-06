@@ -27,6 +27,13 @@ def get_events() -> list:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM 'Event'")
         return cursor.fetchall()
+    
+def get_admin_events(admin) -> list:
+    with sqlite3.connect(path) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM 'Event' WHERE eventAdmin = (?)", (admin,))
+        return cursor.fetchall()    
 
 
 def get_event_by_id(eventID) -> sqlite3.Row:
@@ -70,13 +77,14 @@ def add_event(
     start,
     end,
     location,
+    admin,
     productID="",
     ticketPrice=0,
 ) -> None:
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO Event(eventID, eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID, eventPrice) VALUES(?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO Event(eventID, eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID, eventPrice, eventAdmin) VALUES(?,?,?,?,?,?,?,?,?,?)",
             (
                 new_uuid("event", "eventID"),
                 name,
@@ -85,6 +93,7 @@ def add_event(
                 start,
                 end,
                 location,
+                admin,
                 productID,
                 ticketPrice,
             ),
