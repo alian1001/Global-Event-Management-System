@@ -1,7 +1,9 @@
 import sqlite3
 import uuid
+import hashlib
 
 path = None
+pepper = ""
 
 
 def new_uuid(table=None, column=None) -> str:
@@ -21,19 +23,28 @@ def new_uuid(table=None, column=None) -> str:
     return str(key)
 
 
+def hash_user_password(username, password):
+    hash = hashlib.sha512()
+    hash.update(pepper.encode("utf-8"))  # Pepper
+    hash.update(username.encode("utf-8"))  # Salt
+    hash.update(password.encode("utf-8"))
+    return hash.hexdigest()
+
+
 def get_events() -> list:
     with sqlite3.connect(path) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM 'Event'")
         return cursor.fetchall()
-    
+
+
 def get_admin_events(admin) -> list:
     with sqlite3.connect(path) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM 'Event' WHERE eventAdmin = (?)", (admin,))
-        return cursor.fetchall()    
+        return cursor.fetchall()
 
 
 def get_event_by_id(eventID) -> sqlite3.Row:
@@ -99,3 +110,64 @@ def add_event(
             ),
         )
         conn.commit()
+
+
+# def get_admin_by_username(username) -> sqlite3.Row:
+#     with sqlite3.connect(path) as conn:
+#         conn.row_factory = sqlite3.Row
+#         cursor = conn.cursor()
+#         cursor.execute("SELECT * FROM 'admin' WHERE username = (?)", (username,))
+#         return cursor.fetchone()
+
+
+def check_user_exists(username) -> bool:
+    with sqlite3.connect(path) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM 'admin' WHERE username = (?)", (username,))
+        exists = cursor.fetchone() is not None
+        return exists
+
+
+def check_user_password(username, password) -> bool:
+    with sqlite3.connect(path) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM 'admin' WHERE username = (?)", (username,))
+        user = cursor.fetchone()
+
+        if user is None:
+            return False
+
+        hash = hash_user_password(username, password)
+
+        if user["password"] == hash:
+            return True
+        return False
+
+
+def get_user_by_email(email) -> sqlite3.Row:
+    with sqlite3.connect(path) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM 'admin' WHERE email = (?)", (email,))
+        user = cursor.fetchone()
+
+        return user
+
+
+def add_user(username, password, email):
+    with sqlite3.connect(path) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        password_hash = hash_user_password(username, password)
+
+        cursor.execute(
+            "INSERT INTO admin(username, password, email, firstname) VALUES(?, ?, ?, '')",
+            (
+                username,
+                password_hash,
+                email,
+            ),
+        )

@@ -14,6 +14,7 @@ from mapper import user_db, base_db
 from mapper import sqlite_mapper as db
 from threading import Thread
 from flask_mail import Message, Mail
+from functools import wraps
 import random
 import sqlite3
 import stripe
@@ -22,9 +23,23 @@ mail = Mail()
 mail.init_app(app)
 
 stripe.api_key = app.config["STRIPE_SECRET"]
-db.path = "db.sqlite3"
+db.pepper = app.config["SECRET_PEPPER"]
+db.path = app.config["DATABASE_PATH"]
 
 session1 = 0
+
+
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        username = session.get("username")
+        if username is not None:
+            if db.check_user_exists(username):
+                return f(*args, **kwargs)
+
+        return redirect(url_for("login"))
+
+    return wrap
 
 
 def send_async_email(app, msg):
@@ -48,44 +63,30 @@ def send_email(
 
 @app.route("/", methods=["GET"])
 def index():
-
     return redirect(url_for("home"))
-
-
-@app.route("/bookingsuccess", methods=["GET"])
-def bookingsuccess():
-
-    return render_template("bookingsuccess.html")
 
 
 @app.route("/home", methods=["GET"])
 def home():
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
+    return render_template("home.html", title="Home", username=session.get("username"))
+
+
+@app.route("/bookingsuccess", methods=["GET"])
+def bookingsuccess():
     return render_template(
-        "home.html", title="Home", status=status, username=session.get("username")
+        "bookingsuccess.html",
+        username=session.get("username"),
     )
 
 
 @app.route("/currentevent", methods=["GET"])
 def currentevent():
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
-
     events = db.get_events()
 
     return render_template(
         "currentevent.html",
         title="Current Events",
-        status=status,
+        # status=status,
         events=events,
         username=session.get("username"),
     )
@@ -93,43 +94,31 @@ def currentevent():
 
 @app.route("/clientevent", methods=["GET"])
 def clientEvent():
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
-
     events = db.get_events()
 
     return render_template(
         "currenteventsclient.html",
         title="Current Events",
-        status=status,
+        # status=status,
         events=events,
         username=session.get("username"),
     )
 
 
 @app.route("/users", methods=["GET"])
+@login_required
 def users():
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
-		
     admin = session.get("username")
     events = db.get_admin_events(admin)
-    
+
     return render_template(
         "users.html",
         title="Users",
-        status=status,
+        # status=status,
         events=events,
-        User=session.get("username")
+        username=session.get("username"),
     )
+
 
 @app.route("/checkin/<eventID>", methods=["GET", "POST"])
 def checkin(eventID):
@@ -152,7 +141,9 @@ def checkin(eventID):
         flash("Registered Successfully! Check your email for confirmation")
         return redirect(url_for("bookingsuccess"))
 
-    return render_template("checkin.html", title="Check In", form=form)
+    return render_template(
+        "checkin.html", title="Check In", form=form, username=session.get("username")
+    )
 
 
 @app.route("/checkinAndPay/<eventID>", methods=["GET", "POST"])
@@ -210,10 +201,12 @@ def checkinAndPay(eventID):
         form=form,
         event=event,
         price=price,
+        username=session.get("username"),
     )
 
 
 @app.route("/event", methods=["GET", "POST"])
+@login_required
 def create_event():
     form = eventForm()
     if form.validate_on_submit():
@@ -242,38 +235,33 @@ def create_event():
         else:
             productID = ""
 
-        db.add_event(name, host, date, start, end, location, productID, ticketPrice, admin)
+        db.add_event(
+            name, host, date, start, end, location, productID, ticketPrice, admin
+        )
 
         return redirect(url_for("currentevent"))
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
+    # if session1 == 0:
+    #     session.clear()
+    # status = False
+    # print(session.get("username"), "username")
+    # if session.get("login") == "OK" and session.get("username"):
+    #     status = True
     return render_template(
         "event.html",
         title="Create Event",
-        status=status,
+        # status=status,
         form=form,
         username=session.get("username"),
     )
 
+
 @app.route("/event/<eventID>", methods=["GET", "POST"])
 def bookings(eventID):
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
-
     guests = db.get_guests_by_event(eventID)
-    print(guests)
 
     return render_template(
         "bookings.html",
-        status=status,
+        # status=status,
         guests=guests,
         username=session.get("username"),
     )
@@ -281,93 +269,109 @@ def bookings(eventID):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
-    session["login"] = ""
+    session["username"] = ""
 
     if request.method == "GET":
         return render_template("login.html")
-    else:
-        username = request.form.get("user_name")
-        password = request.form.get("password")
 
-        # sql = "select * from user where username = '%s'" % username
-        # result = base_db.query(sql)
-        result = user_db.get_user_by_name(username)
-        # print(result)
-        print(result[0][1], password)
-        if len(result) != 0:
-            if str(result[0][1]) == str(password):
-                print(result, "result")
-                session["username"] = result[0][0]
-                session["login"] = "OK"
-                session.permanent = True
-                global session1
-                session1 = 1
-                if username == "admin":
-                    return redirect(url_for("admin"))
-                else:
-                    return redirect(url_for("users"))
-            else:
-                return "Incorrect password."
-        else:
-            return "User does not exist."
+    username = request.form.get("user_name")
+    password = request.form.get("password")
+
+    if db.check_user_password(username, password):
+        session["username"] = username
+        session.permanent = True
+
+        return redirect(url_for("users"))
+    return redirect(url_for("login"))
+
+    #     # sql = "select * from user where username = '%s'" % username
+    #     # result = base_db.query(sql)
+    #     result = user_db.get_user_by_name(username)
+    #     # print(result)
+    #     print(result[0][1], password)
+    #     if len(result) != 0:
+    #         if str(result[0][1]) == str(password):
+    #             print(result, "result")
+    #             session["username"] = result[0][0]
+    #             session["login"] = "OK"
+    #             session.permanent = True
+    #             global session1
+    #             session1 = 1
+    #             if username == "admin":
+    #                 return redirect(url_for("admin"))
+    #             else:
+    #                 return redirect(url_for("users"))
+    #         else:
+    #             return "Incorrect password."
+    #     else:
+    #         return "User does not exist."
 
 
 @app.route("/register", methods=["GET", "POST"])
+@login_required
 def register():
     if request.method == "GET":
         return render_template("register.html")
-    else:
-        username = request.form.get("username")
-        password = request.form.get("password")
-        email = request.form.get("email")
-        print(username, password, email)
-        if not user_db.check_user_exist(username):
-            user_db.insert_new_user(username, password, email)
-            uid = user_db.get_user_by_name(username)[0][1]
-            return redirect(url_for("login"))
-        if user_db.check_user_exist(username):
-            return "User already exists."
+
+    username = request.form.get("username")
+    password = request.form.get("password")
+    email = request.form.get("email")
+
+    if db.check_user_exists(username):
+        return redirect(url_for("register"))
+
+    db.add_user(username, password, email)
+
+    flash("User Added!")
+    return redirect(url_for("register"))
+
+    # if not user
+
+    # if not user_db.check_user_exist(username):
+    #     user_db.insert_new_user(username, password, email)
+    #     uid = user_db.get_user_by_name(username)[0][1]
+    #     return redirect(url_for("login"))
+    # if user_db.check_user_exist(username):
+    #     return "User already exists."
 
 
 @app.route("/forgetpassword", methods=["GET", "POST"])
 def forgetpassword():
     if request.method == "GET":
         return render_template("forgetpassword.html")
-    else:
-        username = request.form.get("user_name")
-        user_email = request.form.get("email")
-        Verification_Code = request.form.get("Verification_Code")
-        if not Verification_Code:
-            token = "".join([str(i) for i in random.sample(range(100), 4)])
-            app = current_app._get_current_object()
 
-            user_db.modify_user_token(username, token)
-            send_email(
-                user_email,
-                token,
-                subject="Reset Your Password",
-                template="reset_password",
-            )
+    # if request.method == "GET":
+    #     return render_template("forgetpassword.html")
+    # else:
+    #     username = request.form.get("user_name")
+    #     user_email = request.form.get("email")
+    #     Verification_Code = request.form.get("Verification_Code")
+    #     if not Verification_Code:
+    #         token = "".join([str(i) for i in random.sample(range(100), 4)])
+    #         app = current_app._get_current_object()
 
-            return render_template("forgetpassword.html")
-        elif Verification_Code:
-            dbtoken = user_db.get_user_by_name(username)
-            if str(dbtoken[0][-1]) == str(Verification_Code):
+    #         user_db.modify_user_token(username, token)
+    #         send_email(
+    #             user_email,
+    #             token,
+    #             subject="Reset Your Password",
+    #             template="reset_password",
+    #         )
 
-                newpassword = request.form.get("newpassword")
-                user_db.modify_user_pwd(username, newpassword)
-                return render_template("home.html", title="Home")
+    #         return render_template("forgetpassword.html")
+    #     elif Verification_Code:
+    #         dbtoken = user_db.get_user_by_name(username)
+    #         if str(dbtoken[0][-1]) == str(Verification_Code):
 
-        return render_template("forgetpassword.html")
+    #             newpassword = request.form.get("newpassword")
+    #             user_db.modify_user_pwd(username, newpassword)
+    #             return render_template("home.html", title="Home")
+
+    #     return render_template("forgetpassword.html")
 
 
 @app.route("/logout", methods=["GET"])
+@login_required
 def logout():
-    """logout"""
-    # clear session
     session.clear()
-    status = False
-    global session1
-    session1 = 0
-    return render_template("home.html", title="Home", status=status)
+    return redirect(url_for("home"))
