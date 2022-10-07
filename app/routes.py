@@ -23,8 +23,6 @@ stripe.api_key = app.config["STRIPE_SECRET"]
 db.pepper = app.config["SECRET_PEPPER"]
 db.path = app.config["DATABASE_PATH"]
 
-session1 = 0
-
 
 def login_required(f):
     @wraps(f)
@@ -76,27 +74,13 @@ def bookingsuccess():
     )
 
 
-@app.route("/currentevent", methods=["GET"])
-def currentevent():
+@app.route("/events", methods=["GET"])
+def events():
     events = db.get_events()
 
     return render_template(
-        "currentevent.html",
+        "events.html",
         title="Current Events",
-        # status=status,
-        events=events,
-        username=session.get("username"),
-    )
-
-
-@app.route("/clientevent", methods=["GET"])
-def clientEvent():
-    events = db.get_events()
-
-    return render_template(
-        "currenteventsclient.html",
-        title="Current Events",
-        # status=status,
         events=events,
         username=session.get("username"),
     )
@@ -111,7 +95,6 @@ def users():
     return render_template(
         "users.html",
         title="Users",
-        # status=status,
         events=events,
         username=session.get("username"),
     )
@@ -177,7 +160,7 @@ def checkinAndPay(eventID):
                 ],
                 mode="payment",
                 success_url=url_for("bookingsuccess", _external=True),
-                cancel_url=url_for("clientEvent", _external=True),
+                cancel_url=url_for("events", _external=True),
                 customer_email=email,
             )
         except Exception as e:
@@ -202,7 +185,7 @@ def checkinAndPay(eventID):
     )
 
 
-@app.route("/event", methods=["GET", "POST"])
+@app.route("/newEvent", methods=["GET", "POST"])
 @login_required
 def create_event():
     form = eventForm()
@@ -237,16 +220,10 @@ def create_event():
         )
 
         return redirect(url_for("currentevent"))
-    # if session1 == 0:
-    #     session.clear()
-    # status = False
-    # print(session.get("username"), "username")
-    # if session.get("login") == "OK" and session.get("username"):
-    #     status = True
+
     return render_template(
-        "event.html",
+        "newEvent.html",
         title="Create Event",
-        # status=status,
         form=form,
         username=session.get("username"),
     )
@@ -258,7 +235,6 @@ def bookings(eventID):
 
     return render_template(
         "bookings.html",
-        # status=status,
         guests=guests,
         username=session.get("username"),
     )
@@ -281,28 +257,6 @@ def login():
         return redirect(url_for("users"))
     return redirect(url_for("login"))
 
-    #     # sql = "select * from user where username = '%s'" % username
-    #     # result = base_db.query(sql)
-    #     result = user_db.get_user_by_name(username)
-    #     # print(result)
-    #     print(result[0][1], password)
-    #     if len(result) != 0:
-    #         if str(result[0][1]) == str(password):
-    #             print(result, "result")
-    #             session["username"] = result[0][0]
-    #             session["login"] = "OK"
-    #             session.permanent = True
-    #             global session1
-    #             session1 = 1
-    #             if username == "admin":
-    #                 return redirect(url_for("admin"))
-    #             else:
-    #                 return redirect(url_for("users"))
-    #         else:
-    #             return "Incorrect password."
-    #     else:
-    #         return "User does not exist."
-
 
 @app.route("/register", methods=["GET", "POST"])
 @login_required
@@ -321,15 +275,6 @@ def register():
 
     flash("User Added!")
     return redirect(url_for("register"))
-
-    # if not user
-
-    # if not user_db.check_user_exist(username):
-    #     user_db.insert_new_user(username, password, email)
-    #     uid = user_db.get_user_by_name(username)[0][1]
-    #     return redirect(url_for("login"))
-    # if user_db.check_user_exist(username):
-    #     return "User already exists."
 
 
 @app.route("/forgetpassword", methods=["GET", "POST"])
