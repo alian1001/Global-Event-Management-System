@@ -10,13 +10,10 @@ from flask import (
     flash,
 )
 
-from mapper import user_db, base_db
 from mapper import sqlite_mapper as db
 from threading import Thread
 from flask_mail import Message, Mail
 from functools import wraps
-import random
-import sqlite3
 import stripe
 
 mail = Mail()
