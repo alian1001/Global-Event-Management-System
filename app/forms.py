@@ -36,19 +36,6 @@ class checkinForm(FlaskForm):
     submit = SubmitField("Check In")
 
 
-class checkinAndPayForm(FlaskForm):
-    firstname = StringField("Firstname:", validators=[DataRequired()])
-    lastname = StringField("Lastname:", validators=[DataRequired()])
-    email = StringField("Email:", validators=[DataRequired(), Email()])
-    phone = StringField(
-        "Mobile Phone:", validators=[DataRequired(), Length(min=10, max=10)]
-    )
-    diet = StringField("Dietary Requirements:", validators=[DataRequired()])
-    guests = IntegerField("Additional Guests:", validators=[NumberRange(min=0)])
-
-    submit = SubmitField("Check In & Pay")
-
-
 class eventForm(FlaskForm):
     event_name = StringField("Event Name:", validators=[DataRequired()])
     event_host = StringField("Host of Event:", validators=[DataRequired()])
