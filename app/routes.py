@@ -8,6 +8,7 @@ from flask import (
     session,
     current_app,
     flash,
+    abort,
 )
 
 from mapper import sqlite_mapper as db
@@ -109,36 +110,16 @@ def checkin(eventID):
 
     # eventID = request.args["eventID"]
 
-    if form.validate_on_submit():
-        firstname = form.firstname.data
-        lastname = form.lastname.data
-        email = form.email.data
-        phone = form.phone.data
-        diet = form.diet.data
-
-        db.add_guest(firstname, lastname, email, phone, diet, eventID)
-
-        flash("Registered Successfully! Check your email for confirmation")
-        return redirect(url_for("bookingsuccess"))
-
-    return render_template(
-        "checkin.html", title="Check In", form=form, username=session.get("username")
-    )
-
-
-@app.route("/checkinAndPay/<eventID>", methods=["GET", "POST"])
-def checkinAndPay(eventID):
-    form = checkinAndPayForm()
-
-    # Return user to events page if no event specified
-    # if eventID is None:
-    #     return redirect(url_for("clientevent"), code=303)
-
     event = db.get_event_by_id(eventID)
 
-    product = stripe.Product.retrieve(
-        event["stripeProductID"], expand=["default_price"]
-    )
+    if not event:
+        return abort(404)
+
+    product = None
+    if event["stripeProductID"]:
+        product = stripe.Product.retrieve(
+            event["stripeProductID"], expand=["default_price"]
+        )
 
     if form.validate_on_submit():
         firstname = form.firstname.data
@@ -148,39 +129,36 @@ def checkinAndPay(eventID):
         diet = form.diet.data
         guests = int(form.guests.data)
 
-        try:
+        if product:
+            try:
+                checkout_session = stripe.checkout.Session.create(
+                    line_items=[
+                        {
+                            # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                            "price": product.default_price.id,
+                            "quantity": guests + 1,
+                        },
+                    ],
+                    mode="payment",
+                    success_url=url_for("bookingsuccess", _external=True),
+                    cancel_url=url_for("events", _external=True),
+                    customer_email=email,
+                )
+            except Exception as e:
+                return str(e)
 
-            checkout_session = stripe.checkout.Session.create(
-                line_items=[
-                    {
-                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                        "price": product.default_price.id,
-                        "quantity": guests + 1,
-                    },
-                ],
-                mode="payment",
-                success_url=url_for("bookingsuccess", _external=True),
-                cancel_url=url_for("events", _external=True),
-                customer_email=email,
-            )
-        except Exception as e:
-            return str(e)
+            db.add_guest(firstname, lastname, email, phone, diet, eventID)
+            return redirect(checkout_session.url, code=303)
+        else:
 
-        db.add_guest(firstname, lastname, email, phone, diet, eventID)
-
-        return redirect(checkout_session.url, code=303)
-    unit_price = round(product.default_price.unit_amount / 100, 2)
-    unit_price = (
-        int(unit_price) if unit_price.is_integer() else unit_price
-    )  # Remove .00 unless required
-    price = f"${unit_price} per person"
+            db.add_guest(firstname, lastname, email, phone, diet, eventID)
+            return redirect(url_for("bookingsuccess"))
 
     return render_template(
-        "checkinAndPay.html",
-        title="Check In & Pay",
+        "checkin.html",
+        title="Check In",
         form=form,
         event=event,
-        price=price,
         username=session.get("username"),
     )
 

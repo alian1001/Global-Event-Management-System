@@ -14,4 +14,15 @@ admin = Admin(app)
 
 # admin.add_view(ModelView(Event, db.session))
 
+# Helper for formatting currency in templates
+@app.template_filter("currency")
+def currency_filter(cents):
+    dollars = round(int(cents) / 100, 2)
+    if dollars == 0:
+        return "Free"
+    if dollars.is_integer():
+        dollars = int(dollars)
+    return f"${dollars}"
+
+
 from app import routes

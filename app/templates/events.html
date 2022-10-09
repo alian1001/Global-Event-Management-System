@@ -21,38 +21,23 @@
     attend</h2>
 </div>
 
-<table class="table table-hover w3-animate-opacity w3-animate-top">
-  <thead>
-    <tr>
-      <th scope="col">Event Name</th>
-      <th scope="col">Event Host</th>
-      <th scope="col">Date</th>
-      <th scope="col">Start Time</th>
-      <th scope="col">End Time</th>
-      <th scope="col">Price per Ticket</th>
-    </tr>
-  </thead>
 
-  {% for event in events %}
-  <tbody>
-    <tr>
-      <td>{{ event["eventName"] }}</td>
-      <td>{{ event["eventHost"] }}</td>
-      <td>{{ event["eventDate"] }}</td>
-      <td>{{ event["startTime"] }}</td>
-      <td>{{ event["endTime"] }}</td>
-      <td>${{ event["eventPrice"]/100 }}</td>
-      <td bgcolor="ffffff">
-        {% if event["stripeProductID"] %}
-        <a href="{{ url_for('checkinAndPay', eventID=event[0]) }}">Check In</a>
-        {% else %}
-        <a href="{{ url_for('checkin', eventID=event[0]) }}">Check In</a>
-        {% endif %}
-      </td>
-    </tr>
-  </tbody>
-  {% endfor %}
-
-</table>
+{% for event in events %}
+<a href="{{ url_for('checkin', eventID=event['eventID']) }}">
+  <div class="eventCard">
+    <div class="info">
+      <h3>{{ event["eventName"] }}</h3>
+      <h4>{{ event["eventHost"] }}</h4>
+      <hr>
+      <h5>{{ event["eventLocation"] }}</h5>
+      <h5>{{ event["eventDate"] }}</h5>
+      <h5>{{ event["startTime"] }} &ndash; {{ event["endTime"] }}</h5>
+    </div>
+    <div class="price">
+      <h5>{{ event["eventPrice"]|currency }}</h5>
+    </div>
+  </div>
+</a>
+{% endfor %}
 
 {% endblock %}

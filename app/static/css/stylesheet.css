@@ -64,3 +64,18 @@ p {
 nav.navbar {
   z-index: 1000;
 }
+
+.eventCard {
+  background-color: #ffffffee;
+  padding: 1rem 2rem;
+  margin-bottom: 1rem;
+
+  display: flex;
+  gap: 2rem;
+}
+
+
+
+.eventCard .info {
+  flex: 1 1 100%;
+}
