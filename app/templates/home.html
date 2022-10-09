@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 
 <head>
@@ -7,53 +7,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">-->
 
-  <style>
-    body,
-    h1 {
-      font-family: "Raleway", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
-    }
+<!-- <style>
+  body,
+  h1 {
+    font-family: "Raleway", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
+  }
 
-    body,
-    html {
-      height: 100%
-    }
+  body,
+  html {
+    height: 100%
+  }
 
-    .bgimg {
-      background-image: url('static/assets/maindj.jpg');
-      min-height: 100%;
-      background-position: center;
-      background-size: cover;
-      background-color: violet;
-    }
-  </style>
-</head>
+  .bgimg {
+    background-image: url('static/assets/maindj.jpg');
+    min-height: 100%;
+    background-position: center;
+    background-size: cover;
+    background-color: violet;
+  }
+</style>
+</head> -->
 
-<body>
+<!-- <body> -->
+{% extends "base.html"%}
 
+{% block content %}
 
-  <div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
-    <div class="w3-display-topleft w3-padding-large w3-xlarge">
-      {% if username %}
-      <a href="{{ url_for('logout') }}">Logout</a>
-      {% else %}
-      <a href="{{ url_for('login') }}">Admin Login</a>
-      {% endif %}
-    </div>
-    <div class="w3-display-middle">
-      <h1 class="w3-jumbo w3-animate-top" style="color:rgb(195, 91, 255);">G.E.M.S</h1>
-      <hr class="w3-border-grey" style="margin:auto;width:40%">
-      <h2 class="w3-large w3-center" style="color:rgb(255, 255, 255);">Global Event Management Systems</h2>
-      <p style="text-align: center"><a href="{{ url_for('events') }}"
-          class="w3-button w3-white w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off w3-center">Current
-          Events</a></p>
-    </div>
-    <div class="w3-display-bottomleft w3-padding-large">
-      The University Of Western Australia: CITS3200 Team 9 Project</a>
-    </div>
+<style>
+  /*change background image to dj.jpg*/
+  body {
+    background-image: url("static/assets/maindj.jpg");
+  }
+</style>
+
+<div class="bgimg w3-animate-opacity w3-text-white">
+  <!-- <div class="w3-display-topleft w3-padding-large w3-xlarge">
+    
+  </div> -->
+  <div class="w3-display-middle">
+    <h1 class="w3-jumbo w3-animate-top" style="color:rgb(195, 91, 255);">G.E.M.S</h1>
+    <hr class="w3-border-grey" style="margin:auto;width:40%">
+    <h2 class="w3-large w3-center" style="color:rgb(255, 255, 255);">Global Event Management Systems</h2>
+    <p style="text-align: center"><a href="{{ url_for('events') }}"
+        class="w3-button w3-white w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off w3-center">Current
+        Events</a></p>
+  </div>
+  <div class="w3-display-bottomleft w3-padding-large">
+    The University Of Western Australia: CITS3200 Team 9 Project
   </div>
 
-</body>
+  <div class="w3-display-bottomright w3-padding-large">
+    {% if username %}
+    <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+    <a href="{{ url_for('login') }}">Admin Login</a>
+    {% endif %}
+  </div>
+</div>
 
-</html>
+
+{% endblock %}
+
+<!-- </body>
+
+</html> -->
