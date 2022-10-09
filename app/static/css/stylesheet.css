@@ -1,5 +1,4 @@
 body {
-
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
@@ -60,4 +59,8 @@ p {
   background-color: rgb(130, 60, 131);
   padding: auto;
   color: white;
+}
+
+nav.navbar {
+  z-index: 1000;
 }
