@@ -1,5 +1,5 @@
 from app import app
-from app.forms import checkinForm, checkinAndPayForm, eventForm
+from app.forms import checkinForm, eventForm
 from flask import (
     render_template,
     redirect,
