@@ -9,6 +9,7 @@ from flask import (
     current_app,
     flash,
     abort,
+    jsonify,
 )
 
 from mapper import sqlite_mapper as db
@@ -16,11 +17,15 @@ from threading import Thread
 from flask_mail import Message, Mail
 from functools import wraps
 import stripe
+import json
 
 mail = Mail()
 mail.init_app(app)
 
 stripe.api_key = app.config["STRIPE_SECRET"]
+endpoint_secret = app.config["STRIPE_WEBHOOK_SECRET"]
+
+
 db.pepper = app.config["SECRET_PEPPER"]
 db.path = app.config["DATABASE_PATH"]
 
@@ -105,11 +110,6 @@ def users():
 def checkin(eventID):
     form = checkinForm()
 
-    # if eventID is None:
-    #     return redirect(url_for("clientevent"), code=303)
-
-    # eventID = request.args["eventID"]
-
     event = db.get_event_by_id(eventID)
 
     if not event:
@@ -129,6 +129,8 @@ def checkin(eventID):
         diet = form.diet.data
         guests = int(form.guests.data)
 
+        user = db.add_guest(firstname, lastname, email, phone, diet, eventID)
+
         if product:
             try:
                 checkout_session = stripe.checkout.Session.create(
@@ -143,16 +145,14 @@ def checkin(eventID):
                     success_url=url_for("bookingsuccess", _external=True),
                     cancel_url=url_for("events", _external=True),
                     customer_email=email,
+                    client_reference_id=user,
                 )
             except Exception as e:
                 return str(e)
 
-            db.add_guest(firstname, lastname, email, phone, diet, eventID)
             return redirect(checkout_session.url, code=303)
-        else:
 
-            db.add_guest(firstname, lastname, email, phone, diet, eventID)
-            return redirect(url_for("bookingsuccess"))
+        return redirect(url_for("bookingsuccess"))
 
     return render_template(
         "checkin.html",
@@ -295,3 +295,44 @@ def forgetpassword():
 def logout():
     session.clear()
     return redirect(url_for("home"))
+
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    event = None
+    payload = request.data
+
+    try:
+        event = json.loads(payload)
+    except:
+        print("⚠️  Webhook error while parsing basic request.")
+        return jsonify(success=False)
+
+    if endpoint_secret:
+        # Only verify the event if there is an endpoint secret defined
+        # Otherwise use the basic event deserialized with json
+        sig_header = request.headers.get("stripe-signature")
+        try:
+            event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        except stripe.error.SignatureVerificationError as e:
+            print("⚠️  Webhook signature verification failed.")
+            return jsonify(success=False)
+
+        # Handle the event
+    if event and event["type"] == "checkout.session.completed":
+        checkout_session = event["data"]["object"]  # contains a stripe.PaymentIntent
+        print(f"Payment for guest {checkout_session['client_reference_id']} succeeded")
+
+        db.set_payment_status(checkout_session["client_reference_id"], 1)
+
+    elif event["type"] == "checkout.session.expired":
+        checkout_session = event["data"]["object"]  # contains a stripe.PaymentMethod
+        print(f"Payment for guest {checkout_session['client_reference_id']} expired")
+
+        db.delete_guest(checkout_session["client_reference_id"])
+
+    else:
+        # Unexpected event type
+        print("Unhandled event type {}".format(event["type"]))
+
+    return jsonify(success=True)

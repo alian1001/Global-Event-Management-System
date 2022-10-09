@@ -66,10 +66,11 @@ def get_guests_by_event(eventID) -> list:
 def add_guest(firstname, lastname, email, phone, diet, eventID) -> None:
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
+        userID = new_uuid("guest", "guestID")
         cursor.execute(
             "INSERT INTO Guest(guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID) VALUES(?,?,?,?,?,?,?)",
             (
-                new_uuid("guest", "guestID"),
+                userID,
                 firstname,
                 lastname,
                 email,
@@ -78,6 +79,30 @@ def add_guest(firstname, lastname, email, phone, diet, eventID) -> None:
                 eventID,
             ),
         )
+        conn.commit()
+    return userID
+
+
+def set_payment_status(guestID, status):
+    with sqlite3.connect(path) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "UPDATE 'Guest' SET paymentStatus = (?) WHERE guestID = (?)",
+            (
+                status,
+                guestID,
+            ),
+        )
+        conn.commit()
+
+
+def delete_guest(guestID):
+    with sqlite3.connect(path) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM 'Guest' WHERE guestID = (?)", (guestID,))
         conn.commit()
 
 
