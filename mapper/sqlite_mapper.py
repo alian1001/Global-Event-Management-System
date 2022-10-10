@@ -59,25 +59,22 @@ def get_guests_by_event(eventID) -> list:
     with sqlite3.connect(path) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM 'Guest' WHERE eventID = (?)", (eventID,))
+        cursor.execute(
+            "SELECT * FROM 'Guest' WHERE eventID = (?) GROUP BY paymentStatus ORDER BY bookingTime",
+            (eventID,),
+        )
         return cursor.fetchall()
 
 
-def add_guest(firstname, lastname, email, phone, diet, eventID) -> None:
+def add_guest(
+    firstname, lastname, email, phone, diet, eventID, paymentStatus=0
+) -> None:
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
         userID = new_uuid("guest", "guestID")
         cursor.execute(
-            "INSERT INTO Guest(guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID) VALUES(?,?,?,?,?,?,?)",
-            (
-                userID,
-                firstname,
-                lastname,
-                email,
-                phone,
-                diet,
-                eventID,
-            ),
+            "INSERT INTO Guest(guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, paymentStatus) VALUES(?,?,?,?,?,?,?,?)",
+            (userID, firstname, lastname, email, phone, diet, eventID, paymentStatus),
         )
         conn.commit()
     return userID

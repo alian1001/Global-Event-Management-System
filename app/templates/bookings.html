@@ -6,27 +6,33 @@
     <thead>
         <tr>
             <th scope="col">ID</th>
+            <th scope="col">Booking Time</th>
             <th scope="col">First Name</th>
             <th scope="col">Last Name</th>
             <th scope="col">Email</th>
             <th scope="col">Mobile Number</th>
             <th scope="col">Dietary Requirements</th>
+            <th scope="col">Payment Status</th>
         </tr>
     </thead>
-
-    {% for guest in guests %}
     <tbody>
-        <tr>
-            <td>{{ guest["guestID"] }}</td>
-            <td>{{ guest["firstName"] }}</td>
-            <td>{{ guest["lastName"] }}</td>
-            <td>{{ guest["email"] }}</td>
-            <td>{{ guest["mobileNumber"] }}</td>
-            <td>{{ guest["dietaryReq"] }}</td>
+        {% for guest in guests %}
+        <tr class="{% if guest.paymentStatus != true %}unpaid{% endif %}">
+            <td>{{ guest.guestID }}</td>
+            <td>{{ guest.bookingTime }}</td>
+            <td>{{ guest.firstName }}</td>
+            <td>{{ guest.lastName }}</td>
+            <td>{{ guest.email }}</td>
+            <td>{{ guest.mobileNumber }}</td>
+            <td>{{ guest.dietaryReq }}</td>
+            {% if guest.paymentStatus == true %}
+            <td>Paid</td>
+            {% else %}
+            <td>Unpaid</td>
+            {% endif %}
         </tr>
+        {% endfor %}
     </tbody>
-    {% endfor %}
-
 </table>
 
 {% endblock %}

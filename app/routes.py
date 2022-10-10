@@ -129,7 +129,9 @@ def checkin(eventID):
         diet = form.diet.data
         guests = int(form.guests.data)
 
-        user = db.add_guest(firstname, lastname, email, phone, diet, eventID)
+        user = db.add_guest(
+            firstname, lastname, email, phone, diet, eventID, int(not product)
+        )
 
         if product:
             try:

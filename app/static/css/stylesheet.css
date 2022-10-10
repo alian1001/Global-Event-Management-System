@@ -79,3 +79,7 @@ nav.navbar {
 .eventCard .info {
   flex: 1 1 100%;
 }
+
+.unpaid {
+  opacity: 0.2;
+}
