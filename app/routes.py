@@ -197,7 +197,7 @@ def create_event():
             name, host, date, start, end, location, productID, ticketPrice, admin
         )
 
-        return redirect(url_for("currentevent"))
+        return redirect(url_for("events"))
 
     return render_template(
         "newEvent.html",
