@@ -2,18 +2,18 @@ from mapper import base_db
 
 
 def get_all_users() -> tuple:
-    sql = "select * from user"
+    sql = "select * from admin"
     return base_db.query(sql)
 
 
 # page_num from 0
 def get_all_users_by_page(page_num, page_len) -> tuple:
-    sql = "select * from user limit %s, %s" % (page_len * page_num, page_len)
+    sql = "select * from admin limit %s, %s" % (page_len * page_num, page_len)
     return base_db.query(sql)
 
 
 def check_user_exist(name) -> bool:
-    sql = "select * from user where username='%s'" % (name)
+    sql = "select * from admin where username='%s'" % (name)
     if len(base_db.query(sql)) > 0:
         return True
     else:
@@ -21,7 +21,7 @@ def check_user_exist(name) -> bool:
 
 
 def check_user_pwd(name, pwd) -> bool:
-    sql = "select * from user where username='%s' and password='%s'" % (name, pwd)
+    sql = "select * from admin where username='%s' and password='%s'" % (name, pwd)
     if len(base_db.query(sql)) > 0:
         return True
     else:
@@ -29,7 +29,7 @@ def check_user_pwd(name, pwd) -> bool:
 
 
 def get_user_by_name(name) -> tuple:
-    sql = "select * from user where username='%s'" % (name)
+    sql = "select * from admin where username='%s'" % (name)
     return base_db.query(sql)
 
 
@@ -42,12 +42,12 @@ def get_user_role_by_uid(user_id: int) -> str:
 
 
 def get_userid_by_username(name) -> int:
-    sql = "select id from user where username='%s'" % (name)
+    sql = "select id from admin where username='%s'" % (name)
     return base_db.query(sql)
 
 
 def modify_user_pwd(name, newpwd) -> bool:
-    sql = "update user set password='%s' where username='%s' " % (newpwd, name)
+    sql = "update admin set password='%s' where username='%s' " % (newpwd, name)
     print("change password")
     if base_db.update(sql) > 0:
         return True
@@ -56,7 +56,7 @@ def modify_user_pwd(name, newpwd) -> bool:
 
 
 def modify_user_token(name, token) -> bool:
-    sql = "update user set token='%s' where username='%s' " % (token, name)
+    sql = "update admin set token='%s' where username='%s' " % (token, name)
     if base_db.update(sql) > 0:
         return True
     else:
@@ -64,7 +64,7 @@ def modify_user_token(name, token) -> bool:
 
 
 def insert_new_user(name, pwd, mail) -> bool:
-    sql = "insert into user(username, password, email) values ('%s', '%s', '%s')" % (
+    sql = "insert into admin(username, password, email) values ('%s', '%s', '%s')" % (
         name,
         pwd,
         mail,

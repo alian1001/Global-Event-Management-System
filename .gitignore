@@ -17,3 +17,5 @@ build/
 
 #ignore the database
 db.sqlite3
+
+stripe.env

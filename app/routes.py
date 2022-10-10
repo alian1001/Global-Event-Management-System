@@ -1,5 +1,5 @@
 from app import app
-from app.forms import checkinForm, checkinAndPayForm, eventForm
+from app.forms import checkinForm, eventForm
 from flask import (
     render_template,
     redirect,
@@ -8,20 +8,39 @@ from flask import (
     session,
     current_app,
     flash,
+    abort,
+    jsonify,
 )
 
-from mapper import user_db, base_db
+from mapper import sqlite_mapper as db
 from threading import Thread
 from flask_mail import Message, Mail
-import random
-import sqlite3
+from functools import wraps
 import stripe
+import json
 
 mail = Mail()
 mail.init_app(app)
 
 stripe.api_key = app.config["STRIPE_SECRET"]
-session1 = 0
+endpoint_secret = app.config["STRIPE_WEBHOOK_SECRET"]
+
+
+db.pepper = app.config["SECRET_PEPPER"]
+db.path = app.config["DATABASE_PATH"]
+
+
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        username = session.get("username")
+        if username is not None:
+            if db.check_user_exists(username):
+                return f(*args, **kwargs)
+
+        return redirect(url_for("login"))
+
+    return wrap
 
 
 def send_async_email(app, msg):
@@ -45,136 +64,75 @@ def send_email(
 
 @app.route("/", methods=["GET"])
 def index():
-
     return redirect(url_for("home"))
-
-
-@app.route("/bookingsuccess", methods=["GET"])
-def bookingsuccess():
-
-    return render_template("bookingsuccess.html")
 
 
 @app.route("/home", methods=["GET"])
 def home():
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
+    return render_template("home.html", title="Home", username=session.get("username"))
+
+
+@app.route("/bookingsuccess", methods=["GET"])
+def bookingsuccess():
     return render_template(
-        "home.html", title="Home", status=status, username=session.get("username")
-    )
-
-
-@app.route("/currentevent", methods=["GET"])
-def currentevent():
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
-
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM 'Event'")
-
-    return render_template(
-        "currentevent.html",
-        title="Current Events",
-        status=status,
-        events=cursor.fetchall(),
+        "bookingsuccess.html",
         username=session.get("username"),
     )
 
 
-@app.route("/clientevent", methods=["GET"])
-def clientEvent():
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
-
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM 'Event'")
+@app.route("/events", methods=["GET"])
+def events():
+    events = db.get_events()
 
     return render_template(
-        "currenteventsclient.html",
+        "events.html",
         title="Current Events",
-        status=status,
-        events=cursor.fetchall(),
+        events=events,
         username=session.get("username"),
     )
 
 
 @app.route("/users", methods=["GET"])
+@login_required
 def users():
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
+    admin = session.get("username")
+    events = db.get_admin_events(admin)
+
     return render_template(
-        "users.html", title="Users", status=status, User=session.get("username")
+        "users.html",
+        title="Users",
+        events=events,
+        username=session.get("username"),
     )
 
 
-@app.route("/checkin", methods=["GET", "POST"])
-def checkin():
+@app.route("/checkin/<eventID>", methods=["GET", "POST"])
+def checkin(eventID):
     form = checkinForm()
+
+    event = db.get_event_by_id(eventID)
+
+    if not event:
+        return abort(404)
+
+    product = None
+    if event["stripeProductID"]:
+        product = stripe.Product.retrieve(
+            event["stripeProductID"], expand=["default_price"]
+        )
+
     if form.validate_on_submit():
         firstname = form.firstname.data
         lastname = form.lastname.data
         email = form.email.data
         phone = form.phone.data
         diet = form.diet.data
+        guests = int(form.guests.data)
 
-        sql = """ INSERT INTO Guest(eventID, firstName, lastName, email, mobileNumber, dietaryReq)
-                       VALUES(?,?,?,?,?,?) """
-        conn = sqlite3.connect("db.sqlite3")
-        cursor = conn.cursor()
-        cursor.execute(sql, ("1", firstname, lastname, email, phone, diet))
-        conn.commit()
-        flash("Registered Successfully! Check your email for confirmation")
-        return redirect(url_for("bookingsuccess"))
+        user = db.add_guest(firstname, lastname, email, phone, diet, eventID)
 
-    return render_template("checkin.html", title="Check In", form=form)
-
-
-@app.route("/checkinAndPay", methods=["GET", "POST"])
-def checkinAndPay():
-    form = checkinAndPayForm()
-
-    # Return user to events page if no event specified
-    if "eventID" not in request.args:
-        return redirect(url_for("bookingsuccess"), code=303)
-
-    eventID = request.args["eventID"]
-
-    with sqlite3.connect("db.sqlite3") as conn:
-        cursor = conn.cursor()
-        conn = sqlite3.connect("db.sqlite3")
-        cursor.execute("SELECT * FROM 'Event' WHERE eventID = (?)", (eventID,))
-        event = cursor.fetchone()
-
-        product = stripe.Product.retrieve(event[8], expand=["default_price"])
-
-        if form.validate_on_submit():
-            firstname = form.firstname.data
-            lastname = form.lastname.data
-            email = form.email.data
-            phone = form.phone.data
-            diet = form.diet.data
-            guests = int(form.guests.data)
-
+        if product:
             try:
-
                 checkout_session = stripe.checkout.Session.create(
                     line_items=[
                         {
@@ -185,35 +143,28 @@ def checkinAndPay():
                     ],
                     mode="payment",
                     success_url=url_for("bookingsuccess", _external=True),
-                    cancel_url=url_for("clientEvent", _external=True),
+                    cancel_url=url_for("events", _external=True),
                     customer_email=email,
+                    client_reference_id=user,
                 )
             except Exception as e:
                 return str(e)
 
-            sql = """ INSERT INTO Guest(firstName, lastName, email, mobileNumber, dietaryReq, eventID)
-                    VALUES(?,?,?,?,?,?) """
-
-            cursor.execute(sql, (firstname, lastname, email, phone, diet, eventID))
-            conn.commit()
-
             return redirect(checkout_session.url, code=303)
-        unit_price = round(product.default_price.unit_amount / 100, 2)
-        unit_price = (
-            int(unit_price) if unit_price.is_integer() else unit_price
-        )  # Remove .00 unless required
-        price = f"${unit_price} per person"
 
-        return render_template(
-            "checkinAndPay.html",
-            title="Check In & Pay",
-            form=form,
-            event=event,
-            price=price,
-        )
+        return redirect(url_for("bookingsuccess"))
+
+    return render_template(
+        "checkin.html",
+        title="Check In",
+        form=form,
+        event=event,
+        username=session.get("username"),
+    )
 
 
-@app.route("/event", methods=["GET", "POST"])
+@app.route("/newEvent", methods=["GET", "POST"])
+@login_required
 def create_event():
     form = eventForm()
     if form.validate_on_submit():
@@ -223,137 +174,165 @@ def create_event():
         start = str(form.event_time_start.data)
         end = str(form.event_time_end.data)
         location = form.event_location.data
-        ticketprice = form.ticket_price.data
+        ticketPrice = (
+            float(form.ticket_price.data) * 100
+        )  # Convert from dollars to cents
+        admin = session.get("username")
 
-        if ticketprice:
+        if ticketPrice:
             product = stripe.Product.create(
                 name=f"{name} Ticket",
                 shippable=False,
                 description=f"{host} - {date} {start} to {end}, {location}.",
                 default_price_data={
                     "currency": "aud",
-                    "unit_amount_decimal": ticketprice
-                    * 100,  # Convert from dollars to cents
+                    "unit_amount_decimal": ticketPrice,
                 },
             )
-            productID = product.id
+            productID = str(product.id)
         else:
-            productID = None
+            productID = ""
 
-        sql = """ INSERT INTO Event(eventName, eventHost, eventDate, startTime, endTime, eventLocation, stripeProductID, eventPrice)
-                       VALUES(?,?,?,?,?,?,?) """
-        conn = sqlite3.connect("db.sqlite3")
-        cursor = conn.cursor()
-        cursor.execute(
-            sql, (name, host, date, start, end, location, productID, ticketprice)
+        db.add_event(
+            name, host, date, start, end, location, productID, ticketPrice, admin
         )
-        conn.commit()
 
-        return redirect(url_for("currentevent"))
-    if session1 == 0:
-        session.clear()
-    status = False
-    print(session.get("username"), "username")
-    if session.get("login") == "OK" and session.get("username"):
-        status = True
+        return redirect(url_for("events"))
+
     return render_template(
-        "event.html",
+        "newEvent.html",
         title="Create Event",
-        status=status,
         form=form,
+        username=session.get("username"),
+    )
+
+
+@app.route("/event/<eventID>", methods=["GET", "POST"])
+def bookings(eventID):
+    guests = db.get_guests_by_event(eventID)
+
+    return render_template(
+        "bookings.html",
+        guests=guests,
         username=session.get("username"),
     )
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
-    session["login"] = ""
+    session["username"] = ""
 
     if request.method == "GET":
         return render_template("login.html")
-    else:
-        username = request.form.get("user_name")
-        password = request.form.get("password")
 
-        # sql = "select * from user where username = '%s'" % username
-        # result = base_db.query(sql)
-        result = user_db.get_user_by_name(username)
-        # print(result)
-        print(result[0][1], password)
-        if len(result) != 0:
-            if str(result[0][1]) == str(password):
-                print(result, "result")
-                session["username"] = result[0][0]
-                session["login"] = "OK"
-                session.permanent = True
-                global session1
-                session1 = 1
-                if username == "admin":
-                    return redirect(url_for("admin"))
-                else:
-                    return redirect(url_for("users"))
-            else:
-                return "Incorrect password."
-        else:
-            return "User does not exist."
+    username = request.form.get("user_name")
+    password = request.form.get("password")
+
+    if db.check_user_password(username, password):
+        session["username"] = username
+        session.permanent = True
+
+        return redirect(url_for("users"))
+    return redirect(url_for("login"))
 
 
 @app.route("/register", methods=["GET", "POST"])
+@login_required
 def register():
     if request.method == "GET":
         return render_template("register.html")
-    else:
-        username = request.form.get("username")
-        password = request.form.get("password")
-        email = request.form.get("email")
-        print(username, password, email)
-        if not user_db.check_user_exist(username):
-            user_db.insert_new_user(username, password, email)
-            uid = user_db.get_user_by_name(username)[0][1]
-            return redirect(url_for("login"))
-        if user_db.check_user_exist(username):
-            return "User already exists."
+
+    username = request.form.get("username")
+    password = request.form.get("password")
+    email = request.form.get("email")
+
+    if db.check_user_exists(username):
+        return redirect(url_for("register"))
+
+    db.add_user(username, password, email)
+
+    flash("User Added!")
+    return redirect(url_for("register"))
 
 
 @app.route("/forgetpassword", methods=["GET", "POST"])
 def forgetpassword():
     if request.method == "GET":
         return render_template("forgetpassword.html")
-    else:
-        username = request.form.get("user_name")
-        user_email = request.form.get("email")
-        Verification_Code = request.form.get("Verification_Code")
-        if not Verification_Code:
-            token = "".join([str(i) for i in random.sample(range(100), 4)])
-            app = current_app._get_current_object()
 
-            user_db.modify_user_token(username, token)
-            send_email(
-                user_email,
-                token,
-                subject="Reset Your Password",
-                template="reset_password",
-            )
+    # if request.method == "GET":
+    #     return render_template("forgetpassword.html")
+    # else:
+    #     username = request.form.get("user_name")
+    #     user_email = request.form.get("email")
+    #     Verification_Code = request.form.get("Verification_Code")
+    #     if not Verification_Code:
+    #         token = "".join([str(i) for i in random.sample(range(100), 4)])
+    #         app = current_app._get_current_object()
 
-            return render_template("forgetpassword.html")
-        elif Verification_Code:
-            dbtoken = user_db.get_user_by_name(username)
-            if str(dbtoken[0][-1]) == str(Verification_Code):
+    #         user_db.modify_user_token(username, token)
+    #         send_email(
+    #             user_email,
+    #             token,
+    #             subject="Reset Your Password",
+    #             template="reset_password",
+    #         )
 
-                newpassword = request.form.get("newpassword")
-                user_db.modify_user_pwd(username, newpassword)
-                return render_template("home.html", title="Home")
+    #         return render_template("forgetpassword.html")
+    #     elif Verification_Code:
+    #         dbtoken = user_db.get_user_by_name(username)
+    #         if str(dbtoken[0][-1]) == str(Verification_Code):
 
-        return render_template("forgetpassword.html")
+    #             newpassword = request.form.get("newpassword")
+    #             user_db.modify_user_pwd(username, newpassword)
+    #             return render_template("home.html", title="Home")
+
+    #     return render_template("forgetpassword.html")
 
 
 @app.route("/logout", methods=["GET"])
+@login_required
 def logout():
-    """logout"""
-    # clear session
     session.clear()
-    status = False
-    global session1
-    session1 = 0
-    return render_template("home.html", title="Home", status=status)
+    return redirect(url_for("home"))
+
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    event = None
+    payload = request.data
+
+    try:
+        event = json.loads(payload)
+    except:
+        print("⚠️  Webhook error while parsing basic request.")
+        return jsonify(success=False)
+
+    if endpoint_secret:
+        # Only verify the event if there is an endpoint secret defined
+        # Otherwise use the basic event deserialized with json
+        sig_header = request.headers.get("stripe-signature")
+        try:
+            event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        except stripe.error.SignatureVerificationError as e:
+            print("⚠️  Webhook signature verification failed.")
+            return jsonify(success=False)
+
+        # Handle the event
+    if event and event["type"] == "checkout.session.completed":
+        checkout_session = event["data"]["object"]  # contains a stripe.PaymentIntent
+        print(f"Payment for guest {checkout_session['client_reference_id']} succeeded")
+
+        db.set_payment_status(checkout_session["client_reference_id"], 1)
+
+    elif event["type"] == "checkout.session.expired":
+        checkout_session = event["data"]["object"]  # contains a stripe.PaymentMethod
+        print(f"Payment for guest {checkout_session['client_reference_id']} expired")
+
+        db.delete_guest(checkout_session["client_reference_id"])
+
+    else:
+        # Unexpected event type
+        print("Unhandled event type {}".format(event["type"]))
+
+    return jsonify(success=True)

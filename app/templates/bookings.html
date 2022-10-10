@@ -1,0 +1,32 @@
+{% extends "base.html"%}
+
+{% block content %}
+
+<table class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Mobile Number</th>
+            <th scope="col">Dietary Requirements</th>
+        </tr>
+    </thead>
+
+    {% for guest in guests %}
+    <tbody>
+        <tr>
+            <td>{{ guest["guestID"] }}</td>
+            <td>{{ guest["firstName"] }}</td>
+            <td>{{ guest["lastName"] }}</td>
+            <td>{{ guest["email"] }}</td>
+            <td>{{ guest["mobileNumber"] }}</td>
+            <td>{{ guest["dietaryReq"] }}</td>
+        </tr>
+    </tbody>
+    {% endfor %}
+
+</table>
+
+{% endblock %}

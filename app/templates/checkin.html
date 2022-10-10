@@ -1,4 +1,4 @@
-{% extends "baseclient.html" %}
+{% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block content %}
@@ -7,43 +7,19 @@
 <style>
     /*change background image to dj.jpg*/
     body {
-      background-image: url("static/assets/wedding.jpg");
+        background-image: url("static/assets/wedding.jpg");
     }
-    
-    </style>
+</style>
 
-<div class = "container w3-animate-top w3-animate-opacity">
+<div class="container w3-animate-top w3-animate-opacity">
     <h2 class="w3-jumbo w3-animate-top" style="color:rgb(218, 152, 254);">Check In</h2>
-        <div class="row">
-            <div class="form1">
-                {{ wtf.quick_form(form) }}
-                <span>Upload Image for Badge:</span>
-                <input type="file" id="fileimage" accept="image/*" onchange="loadImage(event)">
-            </div>
+    <h3 class="w3-xxlarge w3-animate-top w3-center" style="color:rgb(218, 152, 254);">
+        {{ event["eventPrice"] | currency}}
+    </h3>
+    <div class="row">
+        <div class="form1">
+            {{ wtf.quick_form(form) }}
         </div>
     </div>
-
-    <div class="container-badge" hidden="True">
-        <canvas id="badgegen" class="badge">
-            <header id="head">
-                <div class="guest-badge">
-                <h4>Badge for Event</h4>
-                <span>Guest</span>
-            </div>
-            <h3>G.E.M.S</h3>
-            </header>
-            <div class="content">
-                <img src="" id="file_image">
-                <ul>
-                    <li id="firstname_badge"></li>
-                    <li id="lastname_badge"></li>
-                    <li id="email_badge"></li>
-                </ul>
-            </div>
-        </canvas>
-    </div>
-
-    <script src="../static/js/badge.js"></script>
-    <link rel="stylesheet" href="../static/css/badge.css">
-
+</div>
 {% endblock %}
