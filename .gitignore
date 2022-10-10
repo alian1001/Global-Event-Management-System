@@ -19,3 +19,4 @@ build/
 db.sqlite3
 
 stripe.env
+db.sqlite3
