@@ -12,6 +12,7 @@ from wtforms import (
     DateField,
     TimeField,
     validators,
+    FileField,
 )
 from wtforms.validators import (
     DataRequired,
@@ -20,6 +21,9 @@ from wtforms.validators import (
     EqualTo,
     Length,
     NumberRange,
+)
+from flask_wtf.file import (
+    FileAllowed,
 )
 
 
@@ -32,6 +36,7 @@ class checkinForm(FlaskForm):
     )
     diet = StringField("Dietary Requirements:", validators=[DataRequired()])
     guests = IntegerField("Additional Guests:", validators=[NumberRange(min=0)])
+    image = FileField("Upload Badge Image:", validators=[FileAllowed(['png', 'jpg', 'jpeg'], "invalid image format!")])
 
     submit = SubmitField("Check In")
 

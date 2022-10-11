@@ -18,6 +18,10 @@ from flask_mail import Message, Mail
 from functools import wraps
 import stripe
 import json
+from PIL import Image, ImageDraw, ImageFont
+import os
+import img2pdf
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 
 mail = Mail()
 mail.init_app(app)
@@ -29,6 +33,10 @@ endpoint_secret = app.config["STRIPE_WEBHOOK_SECRET"]
 db.pepper = app.config["SECRET_PEPPER"]
 db.path = app.config["DATABASE_PATH"]
 
+app.config["UPLOADED_PHOTOS_DEST"] = "app/static/images/temp"
+
+photos = UploadSet('photos', IMAGES)
+configure_uploads(app, photos)
 
 def login_required(f):
     @wraps(f)
@@ -129,6 +137,27 @@ def checkin(eventID):
         diet = form.diet.data
         guests = int(form.guests.data)
 
+        badge_imagename = photos.save(form.image.data)
+        badge = generate_badge(firstname, lastname, diet, phone, badge_imagename)
+
+        badge.save("app/static/images/temp/badge.png")
+        image = Image.open("app/static/images/temp/badge.png")
+        pdf_temp = img2pdf.convert(image.filename)
+
+        file = open("app/static/images/temp/badge.pdf", "wb")
+        file.write(pdf_temp)
+
+        image.close()
+        file.close()
+
+        badge_email = "static/images/temp/badge.pdf"
+        send_badge(email, badge_email, subject="G.E.M.S Badge", template="send_badge")
+
+        os.remove("app/static/images/temp/badge.png")
+        os.remove("app/static/images/temp/badge.pdf")
+        temp_badge = "app/static/images/temp/" + badge_imagename
+        os.remove(temp_badge)
+
         user = db.add_guest(
             firstname, lastname, email, phone, diet, eventID, int(not product)
         )
@@ -164,6 +193,43 @@ def checkin(eventID):
         username=session.get("username"),
     )
 
+def generate_badge(firstname, lastname, diet, phone, badge_url):
+    template = Image.open("app/static/assets/badge_template.png")
+    temp_url = "app/static/images/temp/" + badge_url
+    image = Image.open(temp_url).resize((100, 100), Image.ANTIALIAS)
+
+    fullname = firstname + " " + lastname
+    diet_req = "Dietary Req: " + diet
+    template.paste(image, (10, 70))
+
+    draw = ImageDraw.Draw(template)
+    font = ImageFont.truetype("Arial", size=16)
+    font_bold = ImageFont.truetype("Arial Bold", size=16)
+    draw.text((125, 80), fullname, font=font, fill='black')
+    draw.text((125, 100), phone, font=font, fill='black')
+    draw.text((125, 120), diet_req, font=font, fill='black')
+    draw.text((10, 10), "Badge for Event", font=font_bold, fill='white')
+    draw.text((15, 30), "Guest", font=font_bold, fill='white')
+    draw.text((230, 20), "G.E.M.S", font=font_bold, fill='white')
+
+    return template
+
+def send_badge(user_email, badge, subject="G.E.M.S Badge", template="send_badge"):
+    app = current_app._get_current_object()
+    msg = Message(
+        " " + subject, sender=app.config["FLASKY_MAIL_SENDER"], recipients=[user_email]
+    )
+
+    msg.body = render_template(template + ".txt")
+    msg.html = render_template(template + ".html")
+
+    with app.open_resource(badge) as fp:
+        msg.attach("test-badge.pdf", "application/pdf", fp.read())
+
+    thr = Thread(target=send_async_email, args=[app, msg])
+    thr.start()
+
+    return thr
 
 @app.route("/newEvent", methods=["GET", "POST"])
 @login_required
