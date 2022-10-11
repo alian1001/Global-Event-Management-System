@@ -60,7 +60,7 @@ def get_guests_by_event(eventID) -> list:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT * FROM 'Guest' WHERE eventID = (?) GROUP BY paymentStatus ORDER BY bookingTime",
+            "SELECT * FROM 'Guest' WHERE eventID = (?) ORDER BY paymentStatus DESC, bookingTime",
             (eventID,),
         )
         return cursor.fetchall()
