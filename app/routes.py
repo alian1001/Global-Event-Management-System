@@ -224,7 +224,7 @@ def send_badge(user_email, badge, subject="G.E.M.S Badge", template="send_badge"
     msg.html = render_template(template + ".html")
 
     with app.open_resource(badge) as fp:
-        msg.attach("test-badge.pdf", "application/pdf", fp.read())
+        msg.attach("badge.pdf", "application/pdf", fp.read())
 
     thr = Thread(target=send_async_email, args=[app, msg])
     thr.start()
