@@ -203,8 +203,13 @@ def generate_badge(firstname, lastname, diet, phone, badge_url):
     template.paste(image, (10, 70))
 
     draw = ImageDraw.Draw(template)
-    font = ImageFont.truetype("Arial", size=16)
-    font_bold = ImageFont.truetype("Arial Bold", size=16)
+    # font = ImageFont.truetype("Arial", size=16)
+    # font_bold = ImageFont.truetype("Arial Bold", size=16)
+    # font = ImageFont.load_default()
+
+    font = ImageFont.truetype("app/static/fonts/Roboto-Regular.ttf", size=16)
+    font_bold = ImageFont.truetype("app/static/fonts/Roboto-Bold.ttf", size=16)
+
     draw.text((125, 80), fullname, font=font, fill='black')
     draw.text((125, 100), phone, font=font, fill='black')
     draw.text((125, 120), diet_req, font=font, fill='black')
