@@ -22,6 +22,8 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import img2pdf
 from flask_uploads import UploadSet, configure_uploads, IMAGES
+import random
+from random import randint
 
 mail = Mail()
 mail.init_app(app)
@@ -136,25 +138,27 @@ def checkin(eventID):
         phone = form.phone.data
         diet = form.diet.data
         guests = int(form.guests.data)
+        badge_id = str(random.randint(1, 10000))
 
         badge_imagename = photos.save(form.image.data)
-        badge = generate_badge(firstname, lastname, diet, phone, badge_imagename)
+        badge = generate_badge(firstname, lastname, event, badge_imagename)
 
         badge.save("app/static/images/temp/badge.png")
         image = Image.open("app/static/images/temp/badge.png")
         pdf_temp = img2pdf.convert(image.filename)
+        
+        file_name = "app/static/images/badges/" + badge_id +".pdf"
 
-        file = open("app/static/images/temp/badge.pdf", "wb")
+        file = open(file_name, "wb")
         file.write(pdf_temp)
 
         image.close()
         file.close()
 
-        badge_email = "static/images/temp/badge.pdf"
-        send_badge(email, badge_email, subject="G.E.M.S Badge", template="send_badge")
+        temp_email = "static/images/badges/" + badge_id + ".pdf"
+        send_badge(email, temp_email, subject="G.E.M.S Badge", template="send_badge")
 
         os.remove("app/static/images/temp/badge.png")
-        os.remove("app/static/images/temp/badge.pdf")
         temp_badge = "app/static/images/temp/" + badge_imagename
         os.remove(temp_badge)
 
@@ -193,15 +197,19 @@ def checkin(eventID):
         username=session.get("username"),
     )
 
-def generate_badge(firstname, lastname, diet, phone, badge_url):
+def generate_badge(firstname, lastname, event, badge_url):
     template = Image.open("app/static/assets/badge_template.png")
     temp_url = "app/static/images/temp/" + badge_url
     image = Image.open(temp_url).resize((100, 100), Image.ANTIALIAS)
 
     fullname = firstname + " " + lastname
-    diet_req = "Dietary Req: " + diet
     template.paste(image, (10, 70))
 
+    event_name = event["eventName"]
+    event_location = event["eventLocation"]
+    event_startTime = event["startTime"]
+    event_endTime = event["endTime"]
+    
     draw = ImageDraw.Draw(template)
     # font = ImageFont.truetype("Arial", size=16)
     # font_bold = ImageFont.truetype("Arial Bold", size=16)
@@ -211,9 +219,8 @@ def generate_badge(firstname, lastname, diet, phone, badge_url):
     font_bold = ImageFont.truetype("app/static/fonts/Roboto-Bold.ttf", size=16)
 
     draw.text((125, 80), fullname, font=font, fill='black')
-    draw.text((125, 100), phone, font=font, fill='black')
-    draw.text((125, 120), diet_req, font=font, fill='black')
-    draw.text((10, 10), "Badge for Event", font=font_bold, fill='white')
+    # draw.text((10, 10), "Badge for Event", font=font_bold, fill='white')
+    draw.text((10, 10), event_name, font=font_bold, fill='white')
     draw.text((15, 30), "Guest", font=font_bold, fill='white')
     draw.text((230, 20), "G.E.M.S", font=font_bold, fill='white')
 
