@@ -24,6 +24,7 @@ import img2pdf
 from flask_uploads import UploadSet, configure_uploads, IMAGES
 import random
 from random import randint
+from mapper import user_db,base_db
 
 mail = Mail()
 mail.init_app(app)
@@ -337,37 +338,38 @@ def register():
 
 @app.route("/forgetpassword", methods=["GET", "POST"])
 def forgetpassword():
-    if request.method == "GET":
-        return render_template("forgetpassword.html")
-
     # if request.method == "GET":
     #     return render_template("forgetpassword.html")
-    # else:
-    #     username = request.form.get("user_name")
-    #     user_email = request.form.get("email")
-    #     Verification_Code = request.form.get("Verification_Code")
-    #     if not Verification_Code:
-    #         token = "".join([str(i) for i in random.sample(range(100), 4)])
-    #         app = current_app._get_current_object()
 
-    #         user_db.modify_user_token(username, token)
-    #         send_email(
-    #             user_email,
-    #             token,
-    #             subject="Reset Your Password",
-    #             template="reset_password",
-    #         )
+    if request.method == "GET":
+        return render_template("forgetpassword.html")
+    else:
+        username = request.form.get("user_name")
+        user_email = request.form.get("email")
+        Verification_Code = request.form.get("Verification_Code")
+        if not Verification_Code:
+            token = "".join([str(i) for i in random.sample(range(100), 4)])
+            app = current_app._get_current_object()
 
-    #         return render_template("forgetpassword.html")
-    #     elif Verification_Code:
-    #         dbtoken = user_db.get_user_by_name(username)
-    #         if str(dbtoken[0][-1]) == str(Verification_Code):
+            user_db.modify_user_token(username, token)
+            send_email(
+                user_email,
+                token,
+                subject="Reset Your Password",
+                template="reset_password",
+            )
 
-    #             newpassword = request.form.get("newpassword")
-    #             user_db.modify_user_pwd(username, newpassword)
-    #             return render_template("home.html", title="Home")
+            return render_template("forgetpassword.html")
+        elif Verification_Code:
+            dbtoken = user_db.get_user_by_name(username)
+            if str(dbtoken[0][-1]) == str(Verification_Code):
 
-    #     return render_template("forgetpassword.html")
+                newpassword = request.form.get("newpassword")
+                password_hash = db.hash_user_password(username, newpassword)
+                user_db.modify_user_pwd(username, password_hash)
+                return render_template("home.html", title="Home")
+
+        return render_template("forgetpassword.html")
 
 
 @app.route("/logout", methods=["GET"])
