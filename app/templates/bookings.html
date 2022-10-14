@@ -31,7 +31,7 @@
             {% else %}
             <td>Unpaid</td>
             {% endif %}
-            <td>{{ guest.badgeLocation }}</td>
+            <td><a href="{{ url_for('download', filename = guest.badgeLocation) }}" method="POST">Download</a></td>
         </tr>
         {% endfor %}
     </tbody>

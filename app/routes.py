@@ -10,6 +10,8 @@ from flask import (
     flash,
     abort,
     jsonify,
+    send_file,
+    send_from_directory
 )
 
 from mapper import sqlite_mapper as db
@@ -37,6 +39,7 @@ db.pepper = app.config["SECRET_PEPPER"]
 db.path = app.config["DATABASE_PATH"]
 
 app.config["UPLOADED_PHOTOS_DEST"] = "app/static/images/temp"
+app.config["UPLOADED_BADGES_DEST"] = "app/static/images/badges"
 
 photos = UploadSet('photos', IMAGES)
 configure_uploads(app, photos)
@@ -150,7 +153,8 @@ def checkin(eventID):
         
         file_name = "app/static/images/badges/badge-" + badge_id +".pdf"
 
-        badgeLocation = file_name
+        # badgeLocation = file_name
+        badgeLocation = "badge-" + badge_id +".pdf"
 
         file = open(file_name, "wb")
         file.write(pdf_temp)
@@ -426,3 +430,9 @@ def webhook():
         print("Unhandled event type {}".format(event["type"]))
 
     return jsonify(success=True)
+
+@app.route('/download/<filename>')
+def download(filename):
+    dirname = "static/images/badges/"
+    filesend = dirname + filename
+    return send_file(filesend, as_attachment=True)
