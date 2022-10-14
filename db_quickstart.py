@@ -14,6 +14,7 @@ CREATE TABLE Guest (
     mobileNumber TEXT NOT NULL,
     dietaryReq TEXT NOT NULL,
     eventID TEXT NOT NULL REFERENCES Event (eventID) ON DELETE CASCADE ON UPDATE CASCADE,
+    badgeLocation TEXT NOT NULL,
     paymentStatus BOOL NOT NULL DEFAULT 0,
     bookingTime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -61,17 +62,17 @@ VALUES("67a459b1","Public Art Exhibit","Jane Artist","2022-12-30","12:00:00","20
 INSERT INTO Event 
 VALUES ("caef73db","Exclusive Music Event","David Musician","2022-12-29","19:00:00","21:00:00","Octagon Theatre, UWA","","prod_MYkBLqlc7Zdv7f",1500,"oliver");
 
-INSERT INTO Guest (guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, paymentStatus)
-VALUES ("bb83530c", "Sally", "Davidson", "sally.d@gmail.com", "1234512345", "Vegetarian", "67a459b1", 0);
+INSERT INTO Guest (guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, badgeLocation, paymentStatus)
+VALUES ("bb83530c", "Sally", "Davidson", "sally.d@gmail.com", "1234512345", "Vegetarian", "67a459b1", "badge-0001.pdf", 0);
 
-INSERT INTO Guest (guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, paymentStatus)
-VALUES ("9bd38e1f", "David", "Appleseed", "d.appleseed@gmail.com", "0123401234", "None", "67a459b1", 0);
+INSERT INTO Guest (guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, badgeLocation, paymentStatus)
+VALUES ("9bd38e1f", "David", "Appleseed", "d.appleseed@gmail.com", "0123401234", "None", "67a459b1", "badge-0002.pdf", 0);
 
-INSERT INTO Guest (guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, paymentStatus)
-VALUES ("c4df9b63", "Jane", "French", "j.french@hotmail.com", "5432154321", "Vegan", "caef73db", 0);
+INSERT INTO Guest (guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, badgeLocation, paymentStatus)
+VALUES ("c4df9b63", "Jane", "French", "j.french@hotmail.com", "5432154321", "Vegan", "caef73db", "badge-0003.pdf", 0);
 
-INSERT INTO Guest (guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, paymentStatus)
-VALUES ("00d1cc8e", "Ronald", "McDonald", "ronald@maccas.com", "1234512345", "Meal must include toy", "caef73db", 0);
+INSERT INTO Guest (guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, badgeLocation, paymentStatus)
+VALUES ("00d1cc8e", "Ronald", "McDonald", "ronald@maccas.com", "1234512345", "Meal must include toy", "caef73db", "badge-0004.pdf", 0);
 """
 
 

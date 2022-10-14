@@ -13,6 +13,7 @@
             <th scope="col">Mobile Number</th>
             <th scope="col">Dietary Requirements</th>
             <th scope="col">Payment Status</th>
+            <th scope="col">Badge</th>
         </tr>
     </thead>
     <tbody>
@@ -30,6 +31,7 @@
             {% else %}
             <td>Unpaid</td>
             {% endif %}
+            <td>{{ guest.badgeLocation }}</td>
         </tr>
         {% endfor %}
     </tbody>

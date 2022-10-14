@@ -167,7 +167,7 @@ def checkin(eventID):
         os.remove(temp_badge)
 
         user = db.add_guest(
-            firstname, lastname, email, phone, diet, eventID, int(not product), badgeLocation
+            firstname, lastname, email, phone, diet, eventID, badgeLocation, int(not product)
         )
 
         if product:
