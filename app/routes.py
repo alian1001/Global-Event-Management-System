@@ -150,6 +150,8 @@ def checkin(eventID):
         
         file_name = "app/static/images/badges/badge-" + badge_id +".pdf"
 
+        badgeLocation = file_name
+
         file = open(file_name, "wb")
         file.write(pdf_temp)
 
@@ -165,7 +167,7 @@ def checkin(eventID):
         os.remove(temp_badge)
 
         user = db.add_guest(
-            firstname, lastname, email, phone, diet, eventID, int(not product)
+            firstname, lastname, email, phone, diet, eventID, int(not product), badgeLocation
         )
 
         if product:
