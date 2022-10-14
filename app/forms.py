@@ -36,7 +36,7 @@ class checkinForm(FlaskForm):
     )
     diet = StringField("Dietary Requirements:", validators=[DataRequired()])
     guests = IntegerField("Additional Guests:", validators=[NumberRange(min=0)])
-    image = FileField("Upload Badge Image:", validators=[FileAllowed(['png', 'jpg', 'jpeg'], "invalid image format!")])
+    image = FileField("Upload Badge Image (.png .jpg .jpeg only!):", validators=[DataRequired(), FileAllowed(['png', 'jpg', 'jpeg'], "invalid image format!")])
 
     submit = SubmitField("Check In")
 

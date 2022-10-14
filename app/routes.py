@@ -139,8 +139,8 @@ def checkin(eventID):
         phone = form.phone.data
         diet = form.diet.data
         guests = int(form.guests.data)
-        badge_id = str(random.randint(1, 10000))
 
+        badge_id = str(random.randint(1, 10000))
         badge_imagename = photos.save(form.image.data)
         badge = generate_badge(firstname, lastname, event, badge_imagename)
 
@@ -148,7 +148,7 @@ def checkin(eventID):
         image = Image.open("app/static/images/temp/badge.png")
         pdf_temp = img2pdf.convert(image.filename)
         
-        file_name = "app/static/images/badges/" + badge_id +".pdf"
+        file_name = "app/static/images/badges/badge-" + badge_id +".pdf"
 
         file = open(file_name, "wb")
         file.write(pdf_temp)
@@ -156,11 +156,12 @@ def checkin(eventID):
         image.close()
         file.close()
 
-        temp_email = "static/images/badges/" + badge_id + ".pdf"
-        send_badge(email, temp_email, subject="G.E.M.S Badge", template="send_badge")
+        temp_email = "static/images/badges/badge-" + badge_id + ".pdf"
+        send_badge(event, firstname, email, temp_email, subject="G.E.M.S Badge", template="send_badge")
 
         os.remove("app/static/images/temp/badge.png")
         temp_badge = "app/static/images/temp/" + badge_imagename
+        print(temp_badge)
         os.remove(temp_badge)
 
         user = db.add_guest(
@@ -227,14 +228,19 @@ def generate_badge(firstname, lastname, event, badge_url):
 
     return template
 
-def send_badge(user_email, badge, subject="G.E.M.S Badge", template="send_badge"):
+def send_badge(event, firstname, user_email, badge, subject="G.E.M.S Badge", template="send_badge"):
     app = current_app._get_current_object()
     msg = Message(
-        " " + subject, sender=app.config["FLASKY_MAIL_SENDER"], recipients=[user_email]
+        "" + subject, sender=app.config["FLASKY_MAIL_SENDER"], recipients=[user_email]
     )
 
-    msg.body = render_template(template + ".txt")
-    msg.html = render_template(template + ".html")
+    eventName = event["eventName"]
+    startTime = event["startTime"]
+    endTime = event["endTime"]
+    eventLocation = event["eventLocation"]
+
+    msg.body = render_template(template + ".txt", firstname=firstname, eventName=eventName, startTime=startTime, endTime=endTime, eventLocation=eventLocation)
+    msg.html = render_template(template + ".html", firstname=firstname, eventName=eventName, startTime=startTime, endTime=endTime, eventLocation=eventLocation)
 
     with app.open_resource(badge) as fp:
         msg.attach("badge.pdf", "application/pdf", fp.read())
