@@ -74,7 +74,7 @@ def add_guest(
         userID = new_uuid("guest", "guestID")
         cursor.execute(
             "INSERT INTO Guest(guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, badgeLocation, paymentStatus) VALUES(?,?,?,?,?,?,?,?,?)",
-            (userID, firstname, lastname, email, phone, diet, eventID, paymentStatus, badgeLocation),
+            (userID, firstname, lastname, email, phone, diet, eventID, badgeLocation, paymentStatus),
         )
         conn.commit()
     return userID
