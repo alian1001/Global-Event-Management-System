@@ -1,1 +1,1 @@
-web: gunicorn app:event_manager
+web: gunicorn app:app
