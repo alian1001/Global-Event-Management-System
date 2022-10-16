@@ -26,6 +26,9 @@ class Config(object):
     FLASKY_MAIL_SENDER = "1131761560@qq.com"
     FLASKY_ADMIN = "1131761560@qq.com"
 
+    UPLOADED_PHOTOS_DEST = "app/static/images/temp"
+    UPLOADED_BADGES_DEST = "app/static/images/badges"
+
     @staticmethod
     def init_app(app):
         pass
