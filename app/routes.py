@@ -210,7 +210,18 @@ def checkin(eventID):
         diet = form.diet.data
         guests = int(form.guests.data)
 
-        badge_id = str(random.randint(1, 10000))
+        user = db.add_guest(
+            firstname,
+            lastname,
+            email,
+            phone,
+            diet,
+            eventID,
+            badgeLocation,
+            int(not product),
+        )
+
+        badge_id = user
         badge_imagename = photos.save(form.image.data)
         badge = generate_badge(firstname, lastname, event, badge_imagename)
 
@@ -243,17 +254,6 @@ def checkin(eventID):
         temp_badge = "app/static/images/temp/" + badge_imagename
         print(temp_badge)
         os.remove(temp_badge)
-
-        user = db.add_guest(
-            firstname,
-            lastname,
-            email,
-            phone,
-            diet,
-            eventID,
-            badgeLocation,
-            int(not product),
-        )
 
         if product:
             try:

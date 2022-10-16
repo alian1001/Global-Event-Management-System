@@ -68,7 +68,7 @@ def get_guests_by_event(eventID) -> list:
 
 def add_guest(
     firstname, lastname, email, phone, diet, eventID, badgeLocation, paymentStatus=0
-) -> None:
+) -> str:
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
         userID = _new_uuid("guest", "guestID")
