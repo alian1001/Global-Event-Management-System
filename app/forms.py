@@ -31,14 +31,18 @@ class checkinForm(FlaskForm):
     firstname = StringField("Firstname:", validators=[DataRequired()])
     lastname = StringField("Lastname:", validators=[DataRequired()])
     email = StringField("Email:", validators=[DataRequired(), Email()])
-    phone = StringField(
-        "Mobile Phone:", validators=[DataRequired(), Length(min=10, max=10)]
+    phone = IntegerField(
+        "Mobile Phone:", validators=[DataRequired(), NumberRange(min=1000000000, max=9999999999)]
     )
     diet = StringField("Dietary Requirements:", validators=[DataRequired()])
     guests = IntegerField("Additional Guests:", validators=[NumberRange(min=0)])
     image = FileField("Upload Badge Image (.png .jpg .jpeg only!):", validators=[DataRequired(), FileAllowed(['png', 'jpg', 'jpeg'], "invalid image format!")])
 
     submit = SubmitField("Check In")
+
+    #Create a checkbox for terms and conditions
+    terms = BooleanField('I agree to the terms and conditions', validators=[DataRequired()])
+    
 
 
 class eventForm(FlaskForm):
@@ -55,3 +59,4 @@ class eventForm(FlaskForm):
     )
 
     submit = SubmitField("Create Event")
+    
