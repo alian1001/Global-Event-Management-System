@@ -1,0 +1,69 @@
+{% extends "base.html"%}
+
+{% block content %}
+
+<style>
+	.email {
+		background-color: rgb(255, 255, 255);
+	}
+
+	.password {
+		background-color: rgb(255, 255, 255);
+	}
+</style>
+
+<title>Login</title>
+<link rel="stylesheet" type="text/css" href="../static/css/register-login.css">
+<link rel="icon" href="../static/images/uwa.png" type="image/x-icon" />
+
+<div class="cent-box w3-animate-opacity">
+	<div class="cent-box-header">
+		<h1 class="main-title hide">Group 9</h1>
+		<h3><a href="{{ url_for('index') }}">G.E.M.S System Login</a></h3>
+		<h6>Unauthorised Access Strictly Prohibited</h6>
+	</div>
+
+	<div class="cont-main clearfix">
+		<div class="index-tab">
+		</div>
+		<form method="post">
+			<div class="login form">
+				<div class="group">
+					<div class="group-ipt email">
+						<input type="text" name="user_name" id="email" class="ipt" placeholder="username" required>
+					</div>
+					<div class="group-ipt password">
+						<input type="password" name="password" id="password" class="ipt" placeholder="password"
+							required>
+					</div>
+
+				</div>
+				<div class="button">
+					<button type="submit" class="login-btn register-btn" id="button">Login</button>
+				</div>
+			</div>
+		</form>
+
+		<div class="remember clearfix">
+			<label class="remember-me"><span class="icon"><span class="zt"></span></span><input type="checkbox"
+					name="remember-me" id="remember-me" class="remember-mecheck" checked>remember-me</label>
+			<label class="forgot-password">
+				<a href="{{url_for('forgetpassword')}}">Forgot Password</a>
+			</label>
+		</div>
+	</div>
+</div>
+
+<script>
+
+	$("#remember-me").click(function () {
+		var n = document.getElementById("remember-me").checked;
+		if (n) {
+			$(".zt").show();
+		} else {
+			$(".zt").hide();
+		}
+	});
+</script>
+
+{% endblock %}

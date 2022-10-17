@@ -1,13 +1,26 @@
 from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from config import Config
 
+# from flask_admin import Admin
+
+
 app = Flask(__name__)
 app.config.from_object(Config)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 bootstrap = Bootstrap(app)
+# admin = Admin(app)
 
-from app import routes, models
+# admin.add_view(ModelView(Event, db.session))
+
+# Helper for formatting currency in templates
+@app.template_filter("currency")
+def currency_filter(cents):
+    dollars = round(int(cents) / 100, 2)
+    if dollars == 0:
+        return "Free"
+    if dollars.is_integer():
+        dollars = int(dollars)
+    return f"${dollars}"
+
+
+from app import routes

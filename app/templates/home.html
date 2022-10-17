@@ -1,31 +1,43 @@
-{% extends "base.html"%} 
+<!-- <body> -->
+{% extends "base.html"%}
 
 {% block content %}
-<body>
-    <h1>Event Manager</h1>
-    <p>Event Management System
 
-        Creation of a secure web-based shop front for event attendees:<br>
-        to book his/her attendance (including partner, children);<br>
-        to register contact details;<br>
-        to indicate no fees involved;<br>
-        to enable uploading images/text; and<br>
-        to interface with printer to generate badges<br>
-        Security of data is an important consideration.<br>
-        
-        Client<br>
-        
-        
-        Contact: Ruby Chan<br>
-        Phone: 6488 1170<br>
-        Email: ruby.chan@uwa.edu.au<br>
-        Preferred contact: Phone,Email<br>
-        Location: Perth, UWA Physics Bldg.<br>
-        IP Exploitation Model<br>
-        
-        
-        The IP exploitation model requested by the Client is: <br>Creative Commons (open source) http://creativecommons.org.au/<br>
-        </p>
-</body>
+<style>
+  /*change background image to dj.jpg*/
+  body {
+    background-image: url("static/assets/maindj.jpg");
+  }
+</style>
+
+<div class="bgimg w3-animate-opacity w3-text-white">
+  <!-- <div class="w3-display-topleft w3-padding-large w3-xlarge">
+    
+  </div> -->
+  <div class="w3-display-middle">
+    <h1 class="w3-jumbo w3-animate-top" style="color:rgb(203, 136, 242);">G.E.M.S</h1>
+    <hr class="w3-border-grey" style="margin:auto;width:40%">
+    <h2 class="w3-large w3-center" style="color:rgb(255, 255, 255);">Global Event Management Systems</h2>
+    <p style="text-align: center"><a href="{{ url_for('events') }}"
+        class="w3-button w3-white w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off w3-center">Current
+        Events</a></p>
+  </div>
+  <div class="w3-display-bottomleft w3-padding-large">
+    The University Of Western Australia: CITS3200 Team 9 Project
+  </div>
+
+  <div class="w3-display-bottomright w3-padding-large">
+    {% if username %}
+    <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+    <a href="{{ url_for('login') }}">Admin Login</a>
+    {% endif %}
+  </div>
+</div>
+
 
 {% endblock %}
+
+<!-- </body>
+
+</html> -->

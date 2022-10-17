@@ -1,0 +1,42 @@
+{% extends "base.html"%}
+
+{% block content %}
+
+<style>
+  /*change background image to dj.jpg*/
+  body {
+    background-image: url("static/assets/dj.jpg");
+  }
+
+  table {
+    background-color: rgb(252, 240, 255);
+    border-radius: 3px;
+  }
+</style>
+
+<div class="w3-animate-opacity">
+  <h1 class="w3-jumbo w3-animate-top" style="color:rgb(255, 255, 255);">Current Events</h1>
+  <hr class="w3-border-grey" style="margin:auto;width:40%">
+</div>
+
+
+{% for event in events %}
+<a href="{{ url_for('checkin', eventID=event['eventID']) }}">
+  <div class="eventCard">
+    <div class="info">
+      <img src="/static/assets/uwa.png" alt="Event Image" style="width:10%; opacity: 0.8; ">
+      <h3>{{ event["eventName"] }}</h3>
+      <h4>{{ event["eventHost"] }}</h4>
+      <hr>
+      <h5>{{ event["eventLocation"] }}</h5>
+      <h5>{{ event["eventDate"] }}</h5>
+      <h5>{{ event["startTime"] }} &ndash; {{ event["endTime"] }}</h5>
+    </div>
+    <div class="price">
+      <h5>{{ event["eventPrice"]|currency }}</h5>
+    </div>
+  </div>
+</a>
+{% endfor %}
+
+{% endblock %}

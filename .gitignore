@@ -14,3 +14,11 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+#ignore the database
+db.sqlite3
+
+stripe.env
+db.sqlite3
+
+app/static/images/badges/

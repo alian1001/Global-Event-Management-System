@@ -1,0 +1,67 @@
+{% extends "base.html"%}
+
+{% block content %}
+
+
+<title>Register</title>
+<link rel="stylesheet" type="text/css" href="../static/css/register-login.css">
+<link rel="icon" href="../static/images/uwa.png" type="image/x-icon" />
+
+<div class="cent-box register-box">
+	<div class="cent-box-header">
+		<h1 class="main-title hide">UWA CITS3200 Group 9</h1>
+		<h3><a href="{{ url_for('index') }}">G.E.M.S</a></h3>
+	</div>
+
+	<div class="cont-main clearfix">
+		<div class="index-tab">
+			<div class="index-slide-nav">
+				<a href="{{ url_for('login') }}">Login</a>
+				<a href="{{ url_for('register') }}" class="active">Register</a>
+				<div class="slide-bar slide-bar1"></div>
+			</div>
+		</div>
+		<form method="post">
+			<div class="login form">
+				<div class="group">
+					<div class="group-ipt username">
+						<input type="text" name="username" id="username" class="ipt" placeholder="username" required>
+					</div>
+					<div class="group-ipt user">
+						<input type="password" name="password" id="password" class="ipt" placeholder="password"
+							required>
+					</div>
+					<div class="group-ipt email">
+						<input type="email" name="email" id="email" class="ipt" placeholder="email" required>
+					</div>
+
+				</div>
+				<div class="button">
+					<button type="submit" class="login-btn register-btn" id="button">Register</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+
+<script>
+
+	$(".login-btn").click(function () {
+		var email = $("#email").val();
+		var password = $("#password").val();
+		var verify = $("#verify").val();
+
+	})
+	$("#remember-me").click(function () {
+		var n = document.getElementById("remember-me").checked;
+		if (n) {
+			$(".zt").show();
+		} else {
+			$(".zt").hide();
+		}
+	})
+</script>
+
+
+{% endblock %}

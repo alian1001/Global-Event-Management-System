@@ -1,0 +1,40 @@
+{% extends "base.html"%}
+
+{% block content %}
+
+<table class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Booking Time</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Mobile Number</th>
+            <th scope="col">Dietary Requirements</th>
+            <th scope="col">Payment Status</th>
+            <th scope="col">Badge</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for guest in guests %}
+        <tr class="{% if guest.paymentStatus != true %}unpaid{% endif %}">
+            <td>{{ guest.guestID }}</td>
+            <td>{{ guest.bookingTime }}</td>
+            <td>{{ guest.firstName }}</td>
+            <td>{{ guest.lastName }}</td>
+            <td>{{ guest.email }}</td>
+            <td>{{ guest.mobileNumber }}</td>
+            <td>{{ guest.dietaryReq }}</td>
+            {% if guest.paymentStatus == true %}
+            <td>Paid</td>
+            {% else %}
+            <td>Unpaid</td>
+            {% endif %}
+            <td><a href="{{ url_for('download', filename = guest.badgeLocation) }}" method="POST">Download</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
