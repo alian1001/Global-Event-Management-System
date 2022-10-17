@@ -17,6 +17,7 @@ CREATE TABLE Guest (
     badgeLocation TEXT NOT NULL,
     paymentStatus BOOL NOT NULL DEFAULT 0,
     bookingTime NOT NULL DEFAULT CURRENT_TIMESTAMP
+    numDependents INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE Dependent (
