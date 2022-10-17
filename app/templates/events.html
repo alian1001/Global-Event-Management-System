@@ -15,10 +15,8 @@
 </style>
 
 <div class="w3-animate-opacity">
-  <h1 class="w3-jumbo w3-animate-top" style="color:rgb(195, 91, 255);">Current Events</h1>
+  <h1 class="w3-jumbo w3-animate-top" style="color:rgb(255, 255, 255);">Current Events</h1>
   <hr class="w3-border-grey" style="margin:auto;width:40%">
-  <h2 class="w3-large w3-center w3-animate-opacity" style="color:rgb(255, 255, 255);">Choose the event you would like to
-    attend</h2>
 </div>
 
 
@@ -26,6 +24,7 @@
 <a href="{{ url_for('checkin', eventID=event['eventID']) }}">
   <div class="eventCard">
     <div class="info">
+      <img src="/static/assets/uwa.png" alt="Event Image" style="width:10%; opacity: 0.8; ">
       <h3>{{ event["eventName"] }}</h3>
       <h4>{{ event["eventHost"] }}</h4>
       <hr>

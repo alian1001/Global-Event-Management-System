@@ -1,16 +1,14 @@
 from flask import Flask, request
 from flask_bootstrap import Bootstrap
 from config import Config
-from flask_admin import Admin
 
-# from flask_sqlalchemy import SQLAlchemy
-# from flask_admin.contrib.sqla import ModelView
+# from flask_admin import Admin
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
 bootstrap = Bootstrap(app)
-admin = Admin(app)
+# admin = Admin(app)
 
 # admin.add_view(ModelView(Event, db.session))
 

@@ -11,38 +11,21 @@ from flask import (
     abort,
     jsonify,
     send_file,
-    send_from_directory
+    send_from_directory,
 )
 
 from mapper import sqlite_mapper as db
 from threading import Thread
 from flask_mail import Message, Mail
-from functools import wraps
 import stripe
 import json
 from PIL import Image, ImageDraw, ImageFont
 import os
 import img2pdf
 from flask_uploads import UploadSet, configure_uploads, IMAGES
+from functools import wraps
 import random
-from random import randint
-from mapper import user_db,base_db
 
-mail = Mail()
-mail.init_app(app)
-
-stripe.api_key = app.config["STRIPE_SECRET"]
-endpoint_secret = app.config["STRIPE_WEBHOOK_SECRET"]
-
-
-db.pepper = app.config["SECRET_PEPPER"]
-db.path = app.config["DATABASE_PATH"]
-
-app.config["UPLOADED_PHOTOS_DEST"] = "app/static/images/temp"
-app.config["UPLOADED_BADGES_DEST"] = "app/static/images/badges"
-
-photos = UploadSet('photos', IMAGES)
-configure_uploads(app, photos)
 
 def login_required(f):
     @wraps(f)
@@ -55,6 +38,19 @@ def login_required(f):
         return redirect(url_for("login"))
 
     return wrap
+
+
+mail = Mail()
+mail.init_app(app)
+
+stripe.api_key = app.config["STRIPE_SECRET"]
+endpoint_secret = app.config["STRIPE_WEBHOOK_SECRET"]
+
+db.pepper = app.config["SECRET_PEPPER"]
+db.path = app.config["DATABASE_PATH"]
+
+photos = UploadSet("photos", IMAGES)
+configure_uploads(app, photos)
 
 
 def send_async_email(app, msg):
@@ -74,6 +70,82 @@ def send_email(
     thr = Thread(target=send_async_email, args=[app, msg])
     thr.start()
     return thr
+
+
+def generate_badge(firstname, lastname, event, badge_url):
+    template = Image.open("app/static/assets/badge_template.png")
+    temp_url = "app/static/images/temp/" + badge_url
+    image = Image.open(temp_url).resize((100, 100), Image.ANTIALIAS)
+
+    fullname = firstname + " " + lastname
+    template.paste(image, (10, 70))
+
+    event_name = event["eventName"]
+    event_location = event["eventLocation"]
+    event_startTime = event["startTime"]
+    event_endTime = event["endTime"]
+    time = event_startTime + " to " + event_endTime
+
+    draw = ImageDraw.Draw(template)
+    # font = ImageFont.truetype("Arial", size=16)
+    # font_bold = ImageFont.truetype("Arial Bold", size=16)
+    # font = ImageFont.load_default()
+
+    font = ImageFont.truetype("app/static/fonts/Roboto-Regular.ttf", size=16)
+    font_bold = ImageFont.truetype("app/static/fonts/Roboto-Bold.ttf", size=16)
+
+    draw.text((125, 85), fullname, font=font, fill="black")
+    draw.text((125, 110), event_location, font=font, fill="black")
+    draw.text((125, 135), time, font=font, fill="black")
+    
+    # draw.text((10, 10), "Badge for Event", font=font_bold, fill='white')
+    draw.text((10, 10), event_name, font=font_bold, fill="white")
+    draw.text((15, 30), "Guest", font=font_bold, fill="white")
+    draw.text((230, 20), "G.E.M.S", font=font_bold, fill="white")
+
+    return template
+
+
+def send_badge(
+    event, firstname, user_email, badge, subject="G.E.M.S Badge", template="send_badge"
+):
+    app = current_app._get_current_object()
+    msg = Message(
+        "" + subject, sender=app.config["FLASKY_MAIL_SENDER"], recipients=[user_email]
+    )
+
+    eventName = event["eventName"]
+    startTime = event["startTime"]
+    endTime = event["endTime"]
+    eventLocation = event["eventLocation"]
+
+    msg.body = render_template(
+        template + ".txt",
+        firstname=firstname,
+        eventName=eventName,
+        startTime=startTime,
+        endTime=endTime,
+        eventLocation=eventLocation,
+    )
+    msg.html = render_template(
+        template + ".html",
+        firstname=firstname,
+        eventName=eventName,
+        startTime=startTime,
+        endTime=endTime,
+        eventLocation=eventLocation,
+    )
+
+    with app.open_resource(badge) as fp:
+        msg.attach("badge.pdf", "application/pdf", fp.read())
+
+    thr = Thread(target=send_async_email, args=[app, msg])
+    thr.start()
+
+    return thr
+
+
+### APP ROUTES ###
 
 
 @app.route("/", methods=["GET"])
@@ -150,11 +222,11 @@ def checkin(eventID):
         badge.save("app/static/images/temp/badge.png")
         image = Image.open("app/static/images/temp/badge.png")
         pdf_temp = img2pdf.convert(image.filename)
-        
-        file_name = "app/static/images/badges/badge-" + badge_id +".pdf"
+
+        file_name = "app/static/images/badges/badge-" + badge_id + ".pdf"
 
         # badgeLocation = file_name
-        badgeLocation = "badge-" + badge_id +".pdf"
+        badgeLocation = "badge-" + badge_id + ".pdf"
 
         file = open(file_name, "wb")
         file.write(pdf_temp)
@@ -163,7 +235,14 @@ def checkin(eventID):
         file.close()
 
         temp_email = "static/images/badges/badge-" + badge_id + ".pdf"
-        send_badge(event, firstname, email, temp_email, subject="G.E.M.S Badge", template="send_badge")
+        send_badge(
+            event,
+            firstname,
+            email,
+            temp_email,
+            subject="G.E.M.S Badge",
+            template="send_badge",
+        )
 
         os.remove("app/static/images/temp/badge.png")
         temp_badge = "app/static/images/temp/" + badge_imagename
@@ -171,7 +250,14 @@ def checkin(eventID):
         os.remove(temp_badge)
 
         user = db.add_guest(
-            firstname, lastname, email, phone, diet, eventID, badgeLocation, int(not product)
+            firstname,
+            lastname,
+            email,
+            phone,
+            diet,
+            eventID,
+            badgeLocation,
+            int(not product),
         )
 
         if product:
@@ -205,56 +291,6 @@ def checkin(eventID):
         username=session.get("username"),
     )
 
-def generate_badge(firstname, lastname, event, badge_url):
-    template = Image.open("app/static/assets/badge_template.png")
-    temp_url = "app/static/images/temp/" + badge_url
-    image = Image.open(temp_url).resize((100, 100), Image.ANTIALIAS)
-
-    fullname = firstname + " " + lastname
-    template.paste(image, (10, 70))
-
-    event_name = event["eventName"]
-    event_location = event["eventLocation"]
-    event_startTime = event["startTime"]
-    event_endTime = event["endTime"]
-    
-    draw = ImageDraw.Draw(template)
-    # font = ImageFont.truetype("Arial", size=16)
-    # font_bold = ImageFont.truetype("Arial Bold", size=16)
-    # font = ImageFont.load_default()
-
-    font = ImageFont.truetype("app/static/fonts/Roboto-Regular.ttf", size=16)
-    font_bold = ImageFont.truetype("app/static/fonts/Roboto-Bold.ttf", size=16)
-
-    draw.text((125, 80), fullname, font=font, fill='black')
-    # draw.text((10, 10), "Badge for Event", font=font_bold, fill='white')
-    draw.text((10, 10), event_name, font=font_bold, fill='white')
-    draw.text((15, 30), "Guest", font=font_bold, fill='white')
-    draw.text((230, 20), "G.E.M.S", font=font_bold, fill='white')
-
-    return template
-
-def send_badge(event, firstname, user_email, badge, subject="G.E.M.S Badge", template="send_badge"):
-    app = current_app._get_current_object()
-    msg = Message(
-        "" + subject, sender=app.config["FLASKY_MAIL_SENDER"], recipients=[user_email]
-    )
-
-    eventName = event["eventName"]
-    startTime = event["startTime"]
-    endTime = event["endTime"]
-    eventLocation = event["eventLocation"]
-
-    msg.body = render_template(template + ".txt", firstname=firstname, eventName=eventName, startTime=startTime, endTime=endTime, eventLocation=eventLocation)
-    msg.html = render_template(template + ".html", firstname=firstname, eventName=eventName, startTime=startTime, endTime=endTime, eventLocation=eventLocation)
-
-    with app.open_resource(badge) as fp:
-        msg.attach("badge.pdf", "application/pdf", fp.read())
-
-    thr = Thread(target=send_async_email, args=[app, msg])
-    thr.start()
-
-    return thr
 
 @app.route("/newEvent", methods=["GET", "POST"])
 @login_required
@@ -301,6 +337,7 @@ def create_event():
 
 
 @app.route("/event/<eventID>", methods=["GET", "POST"])
+@login_required
 def bookings(eventID):
     guests = db.get_guests_by_event(eventID)
 
@@ -350,38 +387,36 @@ def register():
 
 @app.route("/forgetpassword", methods=["GET", "POST"])
 def forgetpassword():
-    # if request.method == "GET":
-    #     return render_template("forgetpassword.html")
-
     if request.method == "GET":
         return render_template("forgetpassword.html")
-    else:
-        username = request.form.get("user_name")
-        user_email = request.form.get("email")
-        Verification_Code = request.form.get("Verification_Code")
-        if not Verification_Code:
-            token = "".join([str(i) for i in random.sample(range(100), 4)])
-            app = current_app._get_current_object()
 
-            user_db.modify_user_token(username, token)
-            send_email(
-                user_email,
-                token,
-                subject="Reset Your Password",
-                template="reset_password",
-            )
+    username = request.form.get("user_name")
+    token = request.form.get("Verification_Code")
+    newPassword = request.form.get("newpassword")
 
-            return render_template("forgetpassword.html")
-        elif Verification_Code:
-            dbtoken = user_db.get_user_by_name(username)
-            if str(dbtoken[0][-1]) == str(Verification_Code):
+    email = db.get_user_email(username)
 
-                newpassword = request.form.get("newpassword")
-                password_hash = db.hash_user_password(username, newpassword)
-                user_db.modify_user_pwd(username, password_hash)
-                return render_template("home.html", title="Home")
+    if not email:
+        return redirect(url_for("forgetpassword"))
 
-        return render_template("forgetpassword.html")
+    if not token:
+        # Generate and email a new token
+        newToken = db.add_token(username)
+
+        send_email(
+            email,
+            newToken,
+            subject="Reset Your Password",
+            template="reset_password",
+        )
+
+        return redirect(url_for("forgetpassword"))
+
+    # Verify and delete token
+    if db.check_token(username, token):
+        db.change_password(username, newPassword)
+
+        return redirect(url_for("login"))
 
 
 @app.route("/logout", methods=["GET"])
@@ -431,7 +466,8 @@ def webhook():
 
     return jsonify(success=True)
 
-@app.route('/download/<filename>')
+
+@app.route("/download/<filename>")
 def download(filename):
     dirname = "static/images/badges/"
     filesend = dirname + filename

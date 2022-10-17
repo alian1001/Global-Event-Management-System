@@ -83,3 +83,31 @@ nav.navbar {
 .unpaid {
   opacity: 0.2;
 }
+
+.eventCard {
+  background-color: #ffffffee;
+  padding: 1rem 2rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 1cm;
+  transition:cubic-bezier(1, 0, 0, 1) 0.1s;
+
+}
+
+.eventCard:hover {
+  background-color: #c3aad5ee;
+  padding: 1rem 2rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 1cm;
+  display: flex;
+  gap: 2rem;
+  transition:cubic-bezier(1, 0, 0, 1) 0.2s;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
