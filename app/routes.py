@@ -152,6 +152,10 @@ def send_badge(
 def index():
     return redirect(url_for("home"))
 
+@app.route("/termsofuse", methods=["GET"])
+def termsofuse():
+    return render_template("termsofuse.html")
+
 
 @app.route("/home", methods=["GET"])
 def home():
