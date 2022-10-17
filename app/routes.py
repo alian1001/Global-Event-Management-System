@@ -84,6 +84,7 @@ def generate_badge(firstname, lastname, event, badge_url):
     event_location = event["eventLocation"]
     event_startTime = event["startTime"]
     event_endTime = event["endTime"]
+    time = event_startTime + " to " + event_endTime
 
     draw = ImageDraw.Draw(template)
     # font = ImageFont.truetype("Arial", size=16)
@@ -93,7 +94,10 @@ def generate_badge(firstname, lastname, event, badge_url):
     font = ImageFont.truetype("app/static/fonts/Roboto-Regular.ttf", size=16)
     font_bold = ImageFont.truetype("app/static/fonts/Roboto-Bold.ttf", size=16)
 
-    draw.text((125, 80), fullname, font=font, fill="black")
+    draw.text((125, 85), fullname, font=font, fill="black")
+    draw.text((125, 110), event_location, font=font, fill="black")
+    draw.text((125, 135), time, font=font, fill="black")
+    
     # draw.text((10, 10), "Badge for Event", font=font_bold, fill='white')
     draw.text((10, 10), event_name, font=font_bold, fill="white")
     draw.text((15, 30), "Guest", font=font_bold, fill="white")
