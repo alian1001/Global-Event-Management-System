@@ -261,6 +261,7 @@ def checkin(eventID):
             diet,
             eventID,
             badgeLocation,
+            guests,
             int(not product),
         )
 

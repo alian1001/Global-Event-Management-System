@@ -67,13 +67,13 @@ def get_guests_by_event(eventID) -> list:
 
 
 def add_guest(
-    firstname, lastname, email, phone, diet, eventID, badgeLocation, paymentStatus=0
+    firstname, lastname, email, phone, diet, eventID, badgeLocation, guests, paymentStatus=0
 ) -> str:
     with sqlite3.connect(path) as conn:
         cursor = conn.cursor()
         userID = _new_uuid("guest", "guestID")
         cursor.execute(
-            "INSERT INTO Guest(guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, badgeLocation, paymentStatus) VALUES(?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO Guest(guestID, firstName, lastName, email, mobileNumber, dietaryReq, eventID, badgeLocation, numDependents, paymentStatus) VALUES(?,?,?,?,?,?,?,?,?,?)",
             (
                 userID,
                 firstname,
@@ -83,6 +83,7 @@ def add_guest(
                 diet,
                 eventID,
                 badgeLocation,
+                guests,
                 paymentStatus,
             ),
         )
