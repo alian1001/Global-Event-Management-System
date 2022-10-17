@@ -31,7 +31,7 @@ class checkinForm(FlaskForm):
     firstname = StringField("Firstname:", validators=[DataRequired()])
     lastname = StringField("Lastname:", validators=[DataRequired()])
     email = StringField("Email:", validators=[DataRequired(), Email()])
-    phone = StringField(
+    phone = IntegerField(
         "Mobile Phone:", validators=[DataRequired(), Length(min=10, max=10)]
     )
     diet = StringField("Dietary Requirements:", validators=[DataRequired()])
