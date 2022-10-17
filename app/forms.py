@@ -40,6 +40,10 @@ class checkinForm(FlaskForm):
 
     submit = SubmitField("Check In")
 
+    #Create a checkbox for terms and conditions
+    terms = BooleanField('I agree to the terms and conditions', validators=[DataRequired()])
+    
+
 
 class eventForm(FlaskForm):
     event_name = StringField("Event Name:", validators=[DataRequired()])
@@ -55,3 +59,4 @@ class eventForm(FlaskForm):
     )
 
     submit = SubmitField("Create Event")
+    
