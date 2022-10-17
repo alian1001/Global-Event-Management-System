@@ -14,7 +14,11 @@ IP Exploitation Model
 
 The IP exploitation model requested by the Client is: Creative Commons (open source) http://creativecommons.org.au/
 
+CC BY SA 4.0
+https://creativecommons.org/licenses/by-sa/4.0/
+
 ---
+
 # How to run on Heroku
 
 1. Create a heroku project. 
@@ -33,7 +37,9 @@ git push heroku main
 
 5. Now setup stripe (Refer to documentation below)
 
+
 ---
+
 # How to run locally
 
 1. Make sure you have python installed.
@@ -107,7 +113,9 @@ git push heroku main
 
 7. Now setup stripe (Refer to documentation below)
 
+
 ---
+
 # Stripe Setup
 To use stripe, you will need to set some environment variables.
 
