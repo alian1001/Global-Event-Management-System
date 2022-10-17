@@ -32,7 +32,7 @@ class checkinForm(FlaskForm):
     lastname = StringField("Lastname:", validators=[DataRequired()])
     email = StringField("Email:", validators=[DataRequired(), Email()])
     phone = IntegerField(
-        "Mobile Phone:", validators=[DataRequired(), Length(min=10, max=10)]
+        "Mobile Phone:", validators=[DataRequired(), NumberRange(min=1000000000, max=9999999999)]
     )
     diet = StringField("Dietary Requirements:", validators=[DataRequired()])
     guests = IntegerField("Additional Guests:", validators=[NumberRange(min=0)])
