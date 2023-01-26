@@ -1,4 +1,4 @@
-# CITS3200 Project Group 9
+# The University of Western Australia - CITS3200 Project
 
 Event Management System
 
