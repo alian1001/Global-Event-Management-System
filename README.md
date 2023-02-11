@@ -1,4 +1,4 @@
-# The University of Western Australia - CITS3200 Project
+# UWA Collaboration Project
 
 Event Management System
 
